@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Learning AI Assistant — Project Plan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+
+:root {
+  --bg:       #07090f;
+  --s1:       #0d1117;
+  --s2:       #161b27;
+  --s3:       #1e2535;
+  --cyan:     #22d3ee;
+  --violet:   #a78bfa;
+  --emerald:  #34d399;
+  --amber:    #fbbf24;
+  --rose:     #fb7185;
+  --txt:      #dde3f0;
+  --muted:    #5a6a85;
+  --border:   rgba(34,211,238,.12);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--bg);
+  color:var(--txt);
+  font-family:'DM Sans',sans-serif;
+  line-height:1.6;
+  min-height:100vh;
+}
+
+/* ── SIDEBAR ─────────────────────────────── */
+.layout{display:flex;min-height:100vh}
+
+.sidebar{
+  width:220px;
+  flex-shrink:0;
+  background:var(--s1);
+  border-right:1px solid var(--border);
+  position:fixed;
+  top:0;left:0;bottom:0;
+  overflow-y:auto;
+  z-index:100;
+  display:flex;
+  flex-direction:column;
+}
+
+.sidebar-logo{
+  padding:24px 18px 16px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-logo .logo-badge{
+  display:inline-block;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));
+  color:#07090f;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1px;
+  padding:3px 8px;
+  border-radius:4px;
+  margin-bottom:8px;
+  text-transform:uppercase;
+}
+.sidebar-logo h2{
+  font-size:13px;
+  font-weight:700;
+  line-height:1.3;
+  color:var(--txt);
+}
+.sidebar-logo p{font-size:10px;color:var(--muted);margin-top:3px}
+
+nav{padding:12px 0;flex:1}
+
+.nav-section{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  letter-spacing:1.5px;
+  color:var(--muted);
+  padding:10px 18px 4px;
+  text-transform:uppercase;
+}
+
+.nav-link{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 18px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--muted);
+  text-decoration:none;
+  border-left:2px solid transparent;
+  transition:all .2s;
+  cursor:pointer;
+}
+.nav-link:hover{color:var(--txt);background:var(--s2);border-left-color:var(--border)}
+.nav-link.active{color:var(--cyan);background:rgba(34,211,238,.06);border-left-color:var(--cyan)}
+.nav-icon{font-size:14px;flex-shrink:0}
+
+/* ── MAIN ─────────────────────────────────── */
+.main{
+  margin-left:220px;
+  flex:1;
+  max-width:1000px;
+  padding:40px 36px;
+}
+
+/* ── PAGE HEADER ─────────────────────────── */
+.page-header{
+  margin-bottom:48px;
+  position:relative;
+}
+.page-header::before{
+  content:'';
+  position:absolute;
+  top:-20px;right:-40px;
+  width:400px;height:300px;
+  background:radial-gradient(ellipse at 70% 30%,rgba(34,211,238,.05) 0%,transparent 70%);
+  pointer-events:none;
+}
+.page-tag{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--cyan);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.page-tag::before{content:'';width:24px;height:1px;background:var(--cyan)}
+.page-title{
+  font-size:36px;
+  font-weight:700;
+  line-height:1.15;
+  margin-bottom:12px;
+  background:linear-gradient(135deg,#dde3f0 0%,#22d3ee 50%,#a78bfa 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.page-subtitle{font-size:14px;color:var(--muted);max-width:560px;line-height:1.7}
+
+/* ── SECTION ─────────────────────────────── */
+.section{margin-bottom:64px;scroll-margin-top:24px}
+
+.section-header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:24px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.section-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--cyan);
+  background:rgba(34,211,238,.08);
+  border:1px solid rgba(34,211,238,.2);
+  padding:3px 8px;
+  border-radius:4px;
+}
+.section-title{font-size:20px;font-weight:700}
+.section-desc{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* ── CARDS ───────────────────────────────── */
+.card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:14px;
+  transition:border-color .2s, transform .15s;
+}
+.card:hover{border-color:rgba(34,211,238,.3);transform:translateY(-1px)}
+
+.card-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+.card-icon{
+  width:42px;height:42px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.card-title{font-size:15px;font-weight:700;margin-bottom:2px}
+.card-sub{font-size:11px;color:var(--muted)}
+.card-body{font-size:13px;color:#94a3b8;line-height:1.7}
+
+/* ── TAGS ────────────────────────────────── */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tag{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;padding:3px 9px;border-radius:4px;border:1px solid;
+  font-weight:600;
+}
+.t-cyan  {background:rgba(34,211,238,.08); color:var(--cyan);   border-color:rgba(34,211,238,.25)}
+.t-violet{background:rgba(167,139,250,.08);color:var(--violet); border-color:rgba(167,139,250,.25)}
+.t-em    {background:rgba(52,211,153,.08); color:var(--emerald);border-color:rgba(52,211,153,.25)}
+.t-am    {background:rgba(251,191,36,.08); color:var(--amber);  border-color:rgba(251,191,36,.25)}
+.t-rose  {background:rgba(251,113,133,.08);color:var(--rose);   border-color:rgba(251,113,133,.25)}
+
+/* ── GRID ────────────────────────────────── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* ── CALLOUT ─────────────────────────────── */
+.callout{
+  border-radius:10px;padding:16px 18px;
+  margin-bottom:16px;border:1px solid;
+  font-size:13px;line-height:1.7;
+}
+.callout-title{font-size:12px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.callout p{color:#94a3b8}
+.c-cyan  {background:rgba(34,211,238,.04); border-color:rgba(34,211,238,.2); .callout-title{color:var(--cyan)}}
+.c-em    {background:rgba(52,211,153,.04); border-color:rgba(52,211,153,.2)}
+.c-am    {background:rgba(251,191,36,.04); border-color:rgba(251,191,36,.2)}
+.c-violet{background:rgba(167,139,250,.04);border-color:rgba(167,139,250,.2)}
+.c-rose  {background:rgba(251,113,133,.04);border-color:rgba(251,113,133,.2)}
+
+/* ── FLOW DIAGRAM ────────────────────────── */
+.flow{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:12px;padding:24px;margin-bottom:16px;
+  overflow-x:auto;
+}
+.flow-row{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:8px;flex-wrap:wrap;
+}
+.flow-box{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:8px;padding:10px 14px;
+  font-size:11.5px;font-weight:600;
+  text-align:center;flex:1;min-width:90px;
+  line-height:1.4;
+}
+.flow-box small{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:2px}
+.flow-arr{color:var(--cyan);font-size:18px;flex-shrink:0}
+.flow-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;color:var(--muted);
+  text-align:center;margin:4px 0 12px;
+  display:flex;align-items:center;gap:8px;
+}
+.flow-label::before,.flow-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── TECH TABLE ──────────────────────────── */
+.tech-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.tech-table th{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;letter-spacing:1px;
+  color:var(--muted);text-transform:uppercase;
+  padding:10px 14px;text-align:left;
+  border-bottom:1px solid var(--border);
+  background:var(--s2);
+}
+.tech-table th:first-child{border-radius:8px 0 0 0}
+.tech-table th:last-child{border-radius:0 8px 0 0}
+.tech-table td{
+  padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);
+  vertical-align:top;line-height:1.5;
+}
+.tech-table tr:hover td{background:rgba(255,255,255,.02)}
+.tech-table td:first-child{font-weight:700;color:var(--txt);white-space:nowrap}
+.free-badge{
+  display:inline-block;
+  background:rgba(52,211,153,.1);color:var(--emerald);
+  border:1px solid rgba(52,211,153,.25);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;padding:2px 6px;border-radius:4px;
+  font-weight:700;
+}
+.paid-badge{
+  display:inline-block;
+  background:rgba(251,191,36,.08);color:var(--amber);
+  border:1px solid rgba(251,191,36,.2);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;padding:2px 6px;border-radius:4px;
+  font-weight:700;
+}
+
+/* ── PHASE TIMELINE ──────────────────────── */
+.phase-wrap{position:relative;padding-left:36px}
+.phase-wrap::before{
+  content:'';position:absolute;left:14px;top:8px;bottom:8px;
+  width:1px;background:linear-gradient(to bottom,var(--cyan),transparent);
+}
+.phase{position:relative;margin-bottom:24px}
+.phase-dot{
+  position:absolute;left:-36px;top:6px;
+  width:29px;height:29px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;
+  border:2px solid;flex-shrink:0;
+  background:var(--bg);
+}
+.phase-inner{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;
+}
+.phase-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.phase-title{font-size:14px;font-weight:700}
+.phase-week{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  padding:2px 8px;border-radius:20px;
+}
+.phase-list{list-style:none}
+.phase-list li{
+  font-size:12.5px;color:#94a3b8;padding:3px 0;
+  padding-left:14px;position:relative;line-height:1.5;
+}
+.phase-list li::before{content:'›';position:absolute;left:0;color:var(--cyan);font-weight:700}
+
+/* ── CODE BLOCK ──────────────────────────── */
+.code-block{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;line-height:1.8;
+  overflow-x:auto;margin-bottom:14px;
+  position:relative;
+}
+.code-block .lang{
+  position:absolute;top:10px;right:12px;
+  font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;
+}
+.c-key{color:var(--violet)}
+.c-str{color:var(--emerald)}
+.c-cmt{color:var(--muted);font-style:italic}
+.c-fn {color:var(--cyan)}
+.c-num{color:var(--amber)}
+
+/* ── SMALL UTILS ─────────────────────────── */
+.mt8{margin-top:8px}
+.mt16{margin-top:16px}
+.mb16{margin-bottom:16px}
+hr.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+
+.mini-stat{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:8px;padding:12px 16px;text-align:center;
+}
+.mini-stat .num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:22px;font-weight:700;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  display:block;margin-bottom:2px;
+}
+.mini-stat .lbl{font-size:11px;color:var(--muted)}
+
+/* ── COMPARISON ──────────────────────────── */
+.compare-row{
+  display:flex;gap:12px;margin-bottom:12px;
+}
+.compare-col{
+  flex:1;background:var(--s1);border:1px solid var(--border);
+  border-radius:10px;padding:16px;
+}
+.compare-head{
+  font-size:12px;font-weight:700;margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:6px;
+}
+.compare-item{
+  font-size:12px;color:#94a3b8;padding:4px 0;
+  padding-left:12px;position:relative;
+}
+.compare-item::before{content:'✓';position:absolute;left:0;font-size:10px}
+.compare-item.no{color:var(--muted)}
+.compare-item.no::before{content:'✗';color:var(--rose)}
+
+/* scroll fade-in */
+.fade-in{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}
+.fade-in.visible{opacity:1;transform:none}
+
+/* new-badge */
+.new-badge{
+  display:inline-block;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));
+  color:#07090f;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;padding:2px 7px;border-radius:4px;
+  font-weight:700;letter-spacing:.5px;
+  margin-left:6px;vertical-align:middle;
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">🎓 Đồ án</div>
+    <h2>E-Learning AI Assistant</h2>
+    <p>Multimodal RAG + Slide Gen</p>
+  </div>
+  <nav>
+    <div class="nav-section">Nội dung</div>
+    <a class="nav-link active" onclick="scrollTo('overview')"><span class="nav-icon">🗺️</span>Tổng quan hệ thống</a>
+    <a class="nav-link" onclick="scrollTo('multimodal')"><span class="nav-icon">🧩</span>Multimodal Pipeline</a>
+    <a class="nav-link" onclick="scrollTo('slidegen')"><span class="nav-icon">🖼️</span>Slide Generator</a>
+    <a class="nav-link" onclick="scrollTo('rag')"><span class="nav-icon">🔍</span>RAG Chi tiết</a>
+    <a class="nav-link" onclick="scrollTo('techstack')"><span class="nav-icon">🛠️</span>Tech Stack (Free)</a>
+    <a class="nav-link" onclick="scrollTo('data')"><span class="nav-icon">📦</span>Dữ liệu</a>
+    <div class="nav-section">Triển khai</div>
+    <a class="nav-link" onclick="scrollTo('arch')"><span class="nav-icon">⚙️</span>Kiến trúc & Code</a>
+    <a class="nav-link" onclick="scrollTo('roadmap')"><span class="nav-icon">📅</span>Roadmap 10 tuần</a>
+    <a class="nav-link" onclick="scrollTo('deploy')"><span class="nav-icon">🚀</span>Deploy & Vận hành</a>
+    <a class="nav-link" onclick="scrollTo('gotcha')"><span class="nav-icon">⚠️</span>Những điều cần biết</a>
+    <a class="nav-link" onclick="scrollTo('gaps')"><span class="nav-icon">🔴</span>Production Gaps</a>
+  </nav>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+<!-- PAGE HEADER -->
+<div class="page-header fade-in">
+  <div class="page-tag">Project Blueprint · 2025 · v2.0</div>
+  <h1 class="page-title">E-Learning AI Assistant<br>RAG + Slide Generator</h1>
+  <p class="page-subtitle">Kế hoạch chi tiết để xây một trợ lý học tập thông minh — hiểu PDF, hình ảnh, và <strong style="color:var(--cyan)">sinh slide bài học tự động</strong> — chạy hoàn toàn miễn phí để học và hiểu hệ thống.</p>
+
+  <div class="grid-3 mt16">
+    <div class="mini-stat"><span class="num">2</span><span class="lbl">Modality (text, image)</span></div>
+    <div class="mini-stat"><span class="num">$0</span><span class="lbl">Chi phí API (free tier)</span></div>
+    <div class="mini-stat"><span class="num">10W</span><span class="lbl">Roadmap hoàn thành</span></div>
+  </div>
+</div>
+
+<!-- ── 1. OVERVIEW ── -->
+<section id="overview" class="section fade-in">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <div>
+      <div class="section-title">Tổng quan hệ thống</div>
+      <div class="section-desc">Bài toán, tính năng core, và luồng hoạt động tổng quát</div>
+    </div>
+  </div>
+
+  <div class="callout c-cyan" style="background:rgba(34,211,238,.04);border-color:rgba(34,211,238,.2)">
+    <div class="callout-title" style="color:var(--cyan)">🎯 Core Problem Statement</div>
+    <p>Sinh viên có tài liệu học đa dạng (PDF giáo trình, ảnh chụp bài tập). Họ cần: (1) đặt câu hỏi và nhận câu trả lời <strong style="color:var(--txt)">chính xác, có trích dẫn nguồn</strong> từ đúng tài liệu của mình; (2) <strong style="color:var(--txt)">sinh slide bài học tự động</strong> phù hợp lớp và mức độ — không phải làm tay từng slide.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(34,211,238,.1)">📄</div>
+      <div>
+        <div class="card-title">Feature 1 — Document Q&A (RAG)</div>
+        <div class="card-sub">Tính năng cốt lõi · Bắt buộc làm trước</div>
+      </div>
+    </div>
+    <div class="card-body">Upload PDF/DOCX → tự động chunk, embed, lưu vào vector DB → user hỏi → hệ thống tìm đoạn liên quan → LLM tổng hợp trả lời <em>có ghi rõ "trang X, file Y"</em>.</div>
+    <div class="tags"><span class="tag t-cyan">RAG</span><span class="tag t-cyan">PDF parsing</span><span class="tag t-cyan">Vector search</span><span class="tag t-em">Phải có</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(167,139,250,.1)">🖼️</div>
+      <div>
+        <div class="card-title">Feature 2 — Image Understanding</div>
+        <div class="card-sub">Multimodal · Vision model</div>
+      </div>
+    </div>
+    <div class="card-body">User chụp ảnh bài tập, sơ đồ, biểu đồ hóa học → Vision LLM mô tả thành văn bản → kết hợp với context từ RAG → trả lời chính xác. Cũng xử lý ảnh embed trong PDF.</div>
+    <div class="tags"><span class="tag t-violet">Vision LLM</span><span class="tag t-violet">OCR</span><span class="tag t-violet">Multimodal</span><span class="tag t-am">Làm sau</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(34,211,238,.3)">
+    <div class="card-head">
+      <div class="card-icon" style="background:linear-gradient(135deg,rgba(34,211,238,.15),rgba(167,139,250,.15))">🪄</div>
+      <div>
+        <div class="card-title">Feature 3 — Slide Generator <span class="new-badge">NEW</span></div>
+        <div class="card-sub">Sinh slide tự động · Có điều chỉnh theo lớp & mức độ</div>
+      </div>
+    </div>
+    <div class="card-body">User nhập chủ đề + cấu hình lớp/mức độ + chọn chế độ (Standard / Visual Story) → LLM sinh cấu trúc → render file <strong style="color:var(--txt)">.pptx</strong> (thông thường) hoặc <strong style="color:var(--txt)">.png/.pdf</strong> (truyện tranh 4 ô sinh bởi AI) hoàn toàn miễn phí.</div>
+    <div class="tags"><span class="tag t-cyan">python-pptx</span><span class="tag t-violet">Pollinations.ai</span><span class="tag t-em">Free API</span><span class="tag t-cyan">Multi-mode</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,191,36,.1)">📝</div>
+      <div>
+        <div class="card-title">Feature 4 — Auto Quiz Generator</div>
+        <div class="card-sub">Bonus feature · LLM prompting</div>
+      </div>
+    </div>
+    <div class="card-body">Từ chunk nội dung bất kỳ trong DB → sinh MCQ / True-False / câu tự luận → tự chấm điểm câu trắc nghiệm → gợi ý ôn phần yếu. Implement bằng structured prompting.</div>
+    <div class="tags"><span class="tag t-am">Structured output</span><span class="tag t-am">Evaluation</span><span class="tag t-rose">Cuối cùng</span></div>
+  </div>
+</section>
+
+<!-- ── 2. MULTIMODAL PIPELINE ── -->
+<section id="multimodal" class="section fade-in">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <div>
+      <div class="section-title">Multimodal Pipeline — Text & Image</div>
+      <div class="section-desc">Cách xử lý text và image trước khi đưa vào RAG (đã bỏ audio)</div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-label">INPUT → PREPROCESSING → UNIFIED TEXT CHUNKS → VECTOR DB</div>
+
+    <div class="flow-row">
+      <div class="flow-box" style="border-color:rgba(34,211,238,.3);color:var(--cyan)">📄 PDF / DOCX<small>text + tables + images</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">PyMuPDF<br>+ pdfplumber<small>extract text, layout</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">Text Chunks<small>+ metadata (page, file)</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box" style="border-color:rgba(167,139,250,.3);color:var(--violet)">Embed → Qdrant<small>vector store</small></div>
+    </div>
+
+    <div class="flow-row">
+      <div class="flow-box" style="border-color:rgba(167,139,250,.3);color:var(--violet)">🖼️ Image<small>jpg/png/screenshot</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">Gemini Flash<br>Vision (Free)<small>describe image</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">Text Description<small>+ original image ref</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box" style="border-color:rgba(167,139,250,.3);color:var(--violet)">Embed → Qdrant<small>same collection</small></div>
+    </div>
+  </div>
+
+  <div class="callout c-am" style="background:rgba(251,191,36,.04);border-color:rgba(251,191,36,.2)">
+    <div class="callout-title" style="color:var(--amber)">💡 Triết lý thiết kế quan trọng</div>
+    <p>Toàn bộ 2 modality (text + image) đều được <strong style="color:var(--txt)">convert thành text trước khi embed</strong>. Vector DB chỉ lưu text chunks + embedding. Điều này đơn giản hóa pipeline rất nhiều — chỉ cần hiểu 1 loại storage. <strong style="color:var(--txt)">Audio bị loại bỏ</strong> vì phức tạp, chậm trên CPU, và không cần thiết cho mục tiêu học hệ thống.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px">📊 Chunk Strategy cho Text & Image</div>
+    <div class="card-body">
+      <strong style="color:var(--txt)">Text (PDF):</strong> RecursiveCharacterTextSplitter — chunk size 500–800 tokens, overlap 100–150 tokens<br>
+      Metadata: <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--cyan)">file_name, page_num, chunk_id, source_type="text"</code><br><br>
+      <strong style="color:var(--txt)">Image:</strong> Gemini Vision → description string (~200–500 ký tự)<br>
+      Metadata: <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--violet)">file_name, image_path, source_type="image"</code>
+    </div>
+  </div>
+</section>
+
+<!-- ── 3. SLIDE GENERATOR ── -->
+<section id="slidegen" class="section fade-in">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <div>
+      <div class="section-title">Slide Generator — Tính năng đặc trưng <span class="new-badge">NEW</span></div>
+      <div class="section-desc">Từ tài liệu đã upload → sinh slide bài học có cấu trúc, đúng trình độ</div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-label">SLIDE GENERATION PIPELINE</div>
+    <div class="flow-row">
+      <div class="flow-box" style="border-color:rgba(34,211,238,.3)">User Input<small>topic, grade, mode</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">RAG Retrieval<small>relevant chunks</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">LLM Content<small>Standard / Visual Story</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box" style="border-color:rgba(52,211,153,.3);color:var(--emerald)">Renderer<small>pptx / Pillow</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box" style="border-color:rgba(167,139,250,.3);color:var(--violet)">Output<small>.pptx / .png</small></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:10px;color:var(--cyan)">📐 Pydantic Schema</div>
+      <div class="code-block" style="margin-bottom:0;font-size:11px">
+        <span class="lang">python</span>
+<span class="c-key">class</span> <span class="c-fn">SlideContent</span>(BaseModel):
+    slide_number:  <span class="c-fn">int</span>
+    title:         <span class="c-fn">str</span>
+    bullets:       <span class="c-fn">list</span>[<span class="c-fn">str</span>]   <span class="c-cmt"># 3–5 điểm</span>
+    speaker_notes: <span class="c-fn">str</span>
+    <span class="c-cmt"># Visual Story Panels</span>
+    panels:        <span class="c-fn">list</span>[<span class="c-fn">dict</span>] | <span class="c-key">None</span>
+
+<span class="c-key">class</span> <span class="c-fn">SlidePresentation</span>(BaseModel):
+    topic:        <span class="c-fn">str</span>
+    grade_level:  <span class="c-fn">str</span>
+    difficulty:   <span class="c-fn">str</span>
+    total_slides: <span class="c-fn">int</span>
+    slides:       <span class="c-fn">list</span>[SlideContent]
+    sources:      <span class="c-fn">list</span>[<span class="c-fn">str</span>]
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:10px;color:var(--violet)">🎯 Prompt thay đổi theo lớp</div>
+      <div class="card-body">
+        <strong style="color:var(--emerald)">Lớp 10:</strong> Giải thích đơn giản, dùng ví dụ đời thường, tránh ký hiệu phức tạp<br><br>
+        <strong style="color:var(--cyan)">Lớp 12:</strong> Mức THPT, tập trung ứng dụng thi cử, công thức cơ bản<br><br>
+        <strong style="color:var(--violet)">Đại học:</strong> Ký hiệu chuẩn, chứng minh, mở rộng lý thuyết<br><br>
+        <strong style="color:var(--amber)">Difficulty:</strong> basic → chỉ khái niệm · standard → + ví dụ · advanced → + bài tập
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-title" style="margin-bottom:12px">🪄 Slide Generator — Code mẫu</div>
+    <div class="code-block">
+      <span class="lang">python</span>
+<span class="c-key">async def</span> <span class="c-fn">generate_slides</span>(
+    topic: <span class="c-fn">str</span>,
+    grade_level: <span class="c-fn">str</span>,
+    difficulty: <span class="c-fn">str</span>,
+    n_slides: <span class="c-fn">int</span>
+) -> SlidePresentation:
+
+    <span class="c-cmt"># Step 1: Retrieve relevant chunks từ Vector DB</span>
+    chunks = retriever.search(topic, k=<span class="c-num">20</span>)
+    context = <span class="c-str">"\n\n"</span>.join([c[<span class="c-str">"text"</span>] <span class="c-key">for</span> c <span class="c-key">in</span> chunks])
+
+    <span class="c-cmt"># Step 2: LLM sinh outline (title từng slide)</span>
+    level_hint = LEVEL_PROMPT[grade_level]
+    diff_hint  = DIFFICULTY_PROMPT[difficulty]
+
+    outline_prompt = <span class="c-fn">f</span><span class="c-str">"""
+Tạo outline {n_slides} slide cho chủ đề '{topic}'.
+Trình độ: {grade_level} — {level_hint}
+Mức độ: {difficulty} — {diff_hint}
+Dựa trên context sau:
+{context}
+
+Trả về JSON: {{"slides": [{{"slide_number": 1, "title": "..."}}]}}
+"""</span>
+    outline = <span class="c-key">await</span> llm.generate_json(outline_prompt)
+
+    <span class="c-cmt"># Step 3: LLM sinh nội dung chi tiết từng slide</span>
+    slides = []
+    <span class="c-key">for</span> s <span class="c-key">in</span> outline[<span class="c-str">"slides"</span>]:
+        content = <span class="c-key">await</span> llm.generate_structured(
+            SlideContent, content_prompt(s[<span class="c-str">"title"</span>], context, level_hint)
+        )
+        slides.append(content)
+
+    <span class="c-cmt"># Step 4: Render ra file .pptx</span>
+    pptx_path = render_pptx(slides)
+    <span class="c-key">return</span> SlidePresentation(slides=slides, sources=get_sources(chunks), ...)
+    </div>
+  </div>
+</section>
+
+<!-- ── 4. RAG CHI TIẾT ── -->
+<section id="rag" class="section fade-in">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <div>
+      <div class="section-title">RAG Pipeline — Từng bước chi tiết</div>
+      <div class="section-desc">Hiểu đúng RAG là hiểu 80% hệ thống này</div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-label">QUERY FLOW — Khi user đặt câu hỏi</div>
+    <div class="flow-row">
+      <div class="flow-box" style="border-color:rgba(34,211,238,.3)">User Query<small>"Định lý Bayes là gì?"</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">Query Rewrite<small>(optional) HyDE</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">Embed Query<small>bge-m3 model</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">Hybrid Search<small>BM25 + Vector + RRF</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">Rerank<small>CrossEncoder</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box" style="border-color:rgba(52,211,153,.3);color:var(--emerald)">LLM Generate<small>+ source citation</small></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:8px;color:var(--cyan)">Naive RAG (MVP)</div>
+        <div class="card-body">
+          1. Embed query<br>
+          2. Cosine similarity → top-5 chunks<br>
+          3. Ghép chunks vào prompt<br>
+          4. LLM trả lời<br><br>
+          <span style="color:var(--emerald);font-size:12px">✓ Đơn giản, dễ debug<br>✓ Implement trong 1 ngày</span><br>
+          <span style="color:var(--rose);font-size:12px">✗ Thiếu precision khi query mơ hồ</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:8px;color:var(--violet)">Advanced RAG (v2)</div>
+        <div class="card-body">
+          1. <strong>Query rewriting</strong> (HyDE)<br>
+          2. <strong>Hybrid search</strong>: BM25 + Vector<br>
+          3. <strong>CrossEncoder reranker</strong><br>
+          4. <strong>Context compression</strong><br>
+          5. Citation với page/file<br><br>
+          <span style="color:var(--emerald);font-size:12px">✓ Accuracy cao hơn 20-40%<br>✓ Xứng đáng demo đồ án</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout c-violet" style="background:rgba(167,139,250,.04);border-color:rgba(167,139,250,.2)">
+    <div class="callout-title" style="color:var(--violet)">🔬 HyDE là gì? — Technique quan trọng</div>
+    <p><strong style="color:var(--txt)">Hypothetical Document Embedding:</strong> Thay vì embed câu hỏi ngắn, yêu cầu LLM tưởng tượng câu trả lời lý tưởng → embed câu trả lời đó → search. Câu trả lời hypothetical thường gần với document thật hơn câu hỏi gốc → retrieval chính xác hơn đáng kể.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">📐 Prompt Template chuẩn cho RAG</div>
+    <div class="code-block">
+      <span class="lang">python</span>
+<span class="c-cmt"># System prompt template</span>
+RAG_SYSTEM_PROMPT = <span class="c-str">"""
+Bạn là trợ lý học tập thông minh. Trả lời câu hỏi DỰA TRÊN và CHỈ DựA TRÊN
+các đoạn tài liệu được cung cấp bên dưới.
+
+Quy tắc:
+- Nếu tìm thấy thông tin → trả lời + ghi rõ nguồn [file.pdf, trang X]
+- Nếu KHÔNG tìm thấy → nói thẳng "Tôi không tìm thấy thông tin này trong tài liệu"
+- KHÔNG bịa thêm thông tin ngoài tài liệu
+- Trả lời bằng ngôn ngữ của câu hỏi
+
+CONTEXT:
+{retrieved_chunks}
+
+Câu hỏi: {user_question}
+"""</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── 5. TECH STACK ── -->
+<section id="techstack" class="section fade-in">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <div>
+      <div class="section-title">Tech Stack — Ưu tiên Free API</div>
+      <div class="section-desc">Chọn công cụ phù hợp khi mục tiêu là học và hiểu hệ thống</div>
+    </div>
+  </div>
+
+  <div class="callout c-em" style="background:rgba(52,211,153,.04);border-color:rgba(52,211,153,.2)">
+    <div class="callout-title" style="color:var(--emerald)">✅ Nguyên tắc chọn tool khi học</div>
+    <p>Ưu tiên: <strong style="color:var(--txt)">Chạy được local (offline) > Free tier API > Paid API</strong>. Mục tiêu là hiểu từng component hoạt động ra sao, không phải tối ưu performance. Có thể swap sang paid sau khi đã hiểu rõ.</p>
+  </div>
+
+  <table class="tech-table">
+    <thead>
+      <tr>
+        <th>Thành phần</th>
+        <th>Lựa chọn Free (Khuyến nghị)</th>
+        <th>Lựa chọn Paid (Nâng cấp)</th>
+        <th>Ghi chú</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🤖 LLM (Chat)</td>
+        <td><span class="free-badge">FREE</span> Ollama + Llama 3.1 8B<br><span class="free-badge">FREE</span> Google Gemini 1.5 Flash API</td>
+        <td><span class="paid-badge">PAID</span> GPT-4o, Claude 3.5 Sonnet</td>
+        <td style="color:#94a3b8;font-size:12px">Gemini Flash có 1M token context, đủ dùng để học</td>
+      </tr>
+      <tr>
+        <td>👁️ Vision LLM</td>
+        <td><span class="free-badge">FREE</span> Gemini 1.5 Flash (multimodal)<br><span class="free-badge">FREE</span> LLaVA qua Ollama</td>
+        <td><span class="paid-badge">PAID</span> GPT-4o Vision</td>
+        <td style="color:#94a3b8;font-size:12px">Gemini Flash xử lý ảnh tốt, free 15 req/min</td>
+      </tr>
+      <tr>
+        <td>🪄 Slide Render</td>
+        <td><span class="free-badge">FREE</span> python-pptx (Standard mode)<br><span class="free-badge">FREE</span> Pollinations.ai + Pillow (Visual Story)</td>
+        <td>—</td>
+        <td style="color:#94a3b8;font-size:12px">python-pptx chạy offline, Pollinations.ai free API ko cần key</td>
+      </tr>
+      <tr>
+        <td>📐 Embedding Model</td>
+        <td><span class="free-badge">FREE</span> BAAI/bge-m3 (HuggingFace, local)<br><span class="free-badge">FREE</span> sentence-transformers/all-MiniLM</td>
+        <td><span class="paid-badge">PAID</span> text-embedding-3-large</td>
+        <td style="color:#94a3b8;font-size:12px">bge-m3 hỗ trợ tiếng Việt tốt, chạy local</td>
+      </tr>
+      <tr>
+        <td>🗄️ Vector DB</td>
+        <td><span class="free-badge">FREE</span> ChromaDB (in-memory/local file)<br><span class="free-badge">FREE</span> Qdrant (self-hosted Docker)</td>
+        <td><span class="paid-badge">PAID</span> Pinecone, Weaviate Cloud</td>
+        <td style="color:#94a3b8;font-size:12px">Bắt đầu với ChromaDB, học khái niệm; upgrade Qdrant khi cần</td>
+      </tr>
+      <tr>
+        <td>📄 PDF Parsing</td>
+        <td><span class="free-badge">FREE</span> PyMuPDF (fitz)<br><span class="free-badge">FREE</span> pdfplumber</td>
+        <td>—</td>
+        <td style="color:#94a3b8;font-size:12px">Open-source hoàn toàn, không cần API</td>
+      </tr>
+      <tr>
+        <td>🔗 RAG Framework</td>
+        <td><span class="free-badge">FREE</span> LangChain (OSS)<br><span class="free-badge">FREE</span> LlamaIndex (OSS)</td>
+        <td>—</td>
+        <td style="color:#94a3b8;font-size:12px">Khuyến nghị học LangChain trước vì docs tốt hơn</td>
+      </tr>
+      <tr>
+        <td>⚙️ Backend API</td>
+        <td><span class="free-badge">FREE</span> FastAPI</td>
+        <td>—</td>
+        <td style="color:#94a3b8;font-size:12px">Async native, auto Swagger docs, Python</td>
+      </tr>
+      <tr>
+        <td>🗃️ Relational DB</td>
+        <td><span class="free-badge">FREE</span> SQLite (local dev)<br><span class="free-badge">FREE</span> PostgreSQL (Docker)</td>
+        <td>—</td>
+        <td style="color:#94a3b8;font-size:12px">SQLite đủ dùng khi học; Postgres khi deploy</td>
+      </tr>
+      <tr>
+        <td>🌐 Frontend</td>
+        <td><span class="free-badge">FREE</span> Streamlit (siêu nhanh)<br><span class="free-badge">FREE</span> Gradio</td>
+        <td>—</td>
+        <td style="color:#94a3b8;font-size:12px">Streamlit đủ để demo đồ án, không cần React</td>
+      </tr>
+      <tr>
+        <td>📊 Evaluation</td>
+        <td><span class="free-badge">FREE</span> RAGAS library<br><span class="free-badge">FREE</span> DeepEval</td>
+        <td>—</td>
+        <td style="color:#94a3b8;font-size:12px">Cần thiết để có metrics trong báo cáo đồ án</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── 6. DATA ── -->
+<section id="data" class="section fade-in">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <div>
+      <div class="section-title">Dữ liệu — Lấy từ đâu?</div>
+      <div class="section-desc">Dataset công khai và cách tự tạo dữ liệu demo</div>
+    </div>
+  </div>
+
+  <div class="callout c-am" style="background:rgba(251,191,36,.04);border-color:rgba(251,191,36,.2)">
+    <div class="callout-title" style="color:var(--amber)">💡 Gợi ý thực tế: Chọn 1 môn, làm sâu</div>
+    <p>Không cần dataset khổng lồ. Chọn 1 môn học cụ thể (VD: <strong style="color:var(--txt)">Giải tích 1</strong> hoặc <strong style="color:var(--txt)">Vật lý đại cương</strong>) với 3–5 tài liệu PDF. Depth beats breadth khi chấm đồ án và khi học hệ thống. Thêm vào đó, bộ dữ liệu gọn giúp slide generator tạo ra nội dung chính xác hơn.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-icon" style="background:rgba(34,211,238,.1)">📚</div><div><div class="card-title">ScienceQA — Benchmark dataset</div><div class="card-sub">huggingface.co/datasets/derek-thomas/ScienceQA</div></div></div>
+    <div class="card-body">21,208 câu hỏi khoa học đa phương thức kèm ảnh + giải thích chuẩn. Dùng làm <strong style="color:var(--txt)">ground truth để đánh giá</strong> hệ thống của bạn (RAGAS metrics).</div>
+    <div class="tags"><span class="tag t-violet">Ảnh + Text</span><span class="tag t-em">Free · HuggingFace</span><span class="tag t-cyan">Benchmark</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-icon" style="background:rgba(167,139,250,.1)">🎓</div><div><div class="card-title">MIT OpenCourseWare</div><div class="card-sub">ocw.mit.edu — slide + transcript</div></div></div>
+    <div class="card-body">Slide bài giảng PDF, transcript text, hình ảnh sơ đồ chất lượng cao. Download trực tiếp, không cần crawl. Dùng làm <strong style="color:var(--txt)">corpus thực tế</strong> cho demo — Calculus, Linear Algebra, Physics. Cũng là nguồn tốt để test Slide Generator.</div>
+    <div class="tags"><span class="tag t-violet">PDF + Images</span><span class="tag t-cyan">Download trực tiếp</span><span class="tag t-em">Free</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-icon" style="background:rgba(251,191,36,.1)">🇻🇳</div><div><div class="card-title">Sách giáo khoa Việt Nam</div><div class="card-sub">sach.vn / nxbgd.vn</div></div></div>
+    <div class="card-body">Download PDF từ các nhà xuất bản. Tiếng Việt hoàn toàn — phù hợp nhất nếu demo cho giáo viên/học sinh Việt Nam. Rất hữu ích cho Slide Generator theo lớp (10/11/12).</div>
+    <div class="tags"><span class="tag t-am">Tiếng Việt</span><span class="tag t-am">PDF</span><span class="tag t-am">Manual download</span></div>
+  </div>
+</section>
+
+<!-- ── 7. KIẾN TRÚC & CODE ── -->
+<section id="arch" class="section fade-in">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <div>
+      <div class="section-title">Kiến trúc & Code mẫu</div>
+      <div class="section-desc">Cấu trúc project và các đoạn code quan trọng nhất</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">📁 Cấu trúc thư mục đề xuất</div>
+    <div class="code-block">
+      <span class="lang">tree</span>
+elearning-ai/
+├── <span class="c-key">backend/</span>
+│   ├── main.py              <span class="c-cmt"># FastAPI app entry</span>
+│   ├── <span class="c-key">ingestion/</span>
+│   │   ├── pdf_parser.py    <span class="c-cmt"># PyMuPDF → chunks</span>
+│   │   └── image_parser.py  <span class="c-cmt"># Gemini Vision → description</span>
+│   ├── <span class="c-key">rag/</span>
+│   │   ├── embedder.py      <span class="c-cmt"># bge-m3 embedding</span>
+│   │   ├── retriever.py     <span class="c-cmt"># hybrid search + rerank</span>
+│   │   └── generator.py     <span class="c-cmt"># LLM answer generation</span>
+│   ├── <span class="c-key">slides/</span>
+│   │   ├── slide_generator.py <span class="c-cmt"># outline + content LLM calls</span>
+│   │   └── pptx_renderer.py   <span class="c-cmt"># python-pptx render</span>
+│   ├── <span class="c-key">models/</span>
+│   │   └── schemas.py       <span class="c-cmt"># Pydantic models (SlideContent, Quiz...)</span>
+│   └── <span class="c-key">db/</span>
+│       ├── vector_store.py  <span class="c-cmt"># ChromaDB/Qdrant client</span>
+│       └── sql_db.py        <span class="c-cmt"># SQLite/Postgres</span>
+├── <span class="c-key">frontend/</span>
+│   └── app.py               <span class="c-cmt"># Streamlit UI (Chat + Quiz + Slides tabs)</span>
+├── <span class="c-key">data/</span>
+│   ├── raw/                 <span class="c-cmt"># uploaded files (TTL 72h)</span>
+│   ├── processed/           <span class="c-cmt"># chunks cache</span>
+│   └── slides/              <span class="c-cmt"># exported .pptx files</span>
+├── <span class="c-key">eval/</span>
+│   └── ragas_eval.py        <span class="c-cmt"># RAGAS metrics</span>
+├── docker-compose.yml
+└── requirements.txt
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">🔧 PDF Ingestion Pipeline</div>
+    <div class="code-block">
+      <span class="lang">python</span>
+<span class="c-key">import</span> fitz  <span class="c-cmt"># PyMuPDF</span>
+<span class="c-key">from</span> langchain.text_splitter <span class="c-key">import</span> RecursiveCharacterTextSplitter
+
+<span class="c-key">def</span> <span class="c-fn">ingest_pdf</span>(file_path: str) -> list[dict]:
+    doc = fitz.open(file_path)
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=<span class="c-num">600</span>,
+        chunk_overlap=<span class="c-num">120</span>,
+        separators=[<span class="c-str">"\n\n"</span>, <span class="c-str">"\n"</span>, <span class="c-str">"."</span>, <span class="c-str">" "</span>]
+    )
+    chunks = []
+    <span class="c-key">for</span> page_num, page <span class="c-key">in</span> enumerate(doc):
+        text = page.get_text()
+        <span class="c-key">if not</span> text.strip():
+            <span class="c-key">continue</span>
+        splits = splitter.split_text(text)
+        <span class="c-key">for</span> i, chunk <span class="c-key">in</span> enumerate(splits):
+            chunks.append({
+                <span class="c-str">"text"</span>: chunk,
+                <span class="c-str">"metadata"</span>: {
+                    <span class="c-str">"source"</span>: file_path,
+                    <span class="c-str">"page"</span>: page_num + <span class="c-num">1</span>,
+                    <span class="c-str">"chunk_id"</span>: <span class="c-fn">f</span><span class="c-str">"p{page_num}_{i}"</span>,
+                    <span class="c-str">"source_type"</span>: <span class="c-str">"text"</span>
+                }
+            })
+    <span class="c-key">return</span> chunks
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">🪄 Slide Generator — python-pptx Renderer</div>
+    <div class="code-block">
+      <span class="lang">python</span>
+<span class="c-key">from</span> pptx <span class="c-key">import</span> Presentation
+<span class="c-key">from</span> pptx.util <span class="c-key">import</span> Inches, Pt
+<span class="c-key">import</span> uuid
+
+<span class="c-key">def</span> <span class="c-fn">render_pptx</span>(slides: list[SlideContent]) -> str:
+    prs = Presentation()
+    prs.slide_width  = Inches(<span class="c-num">13.33</span>)
+    prs.slide_height = Inches(<span class="c-num">7.5</span>)   <span class="c-cmt"># 16:9</span>
+
+    layout = prs.slide_layouts[<span class="c-num">1</span>]  <span class="c-cmt"># Title and Content</span>
+
+    <span class="c-key">for</span> slide_data <span class="c-key">in</span> slides:
+        slide = prs.slides.add_slide(layout)
+
+        <span class="c-cmt"># Title</span>
+        slide.shapes.title.text = slide_data.title
+
+        <span class="c-cmt"># Bullets</span>
+        tf = slide.placeholders[<span class="c-num">1</span>].text_frame
+        tf.clear()
+        <span class="c-key">for</span> bullet <span class="c-key">in</span> slide_data.bullets:
+            p = tf.add_paragraph()
+            p.text  = bullet
+            p.level = <span class="c-num">0</span>
+
+        <span class="c-cmt"># Speaker notes</span>
+        notes_slide = slide.notes_slide
+        notes_slide.notes_text_frame.text = slide_data.speaker_notes
+
+    path = <span class="c-fn">f</span><span class="c-str">"data/slides/{uuid.uuid4()}.pptx"</span>
+    prs.save(path)
+    <span class="c-key">return</span> path
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">🔍 RAG Query Chain</div>
+    <div class="code-block">
+      <span class="lang">python</span>
+<span class="c-key">from</span> langchain_community.vectorstores <span class="c-key">import</span> Chroma
+<span class="c-key">from</span> langchain_huggingface <span class="c-key">import</span> HuggingFaceEmbeddings
+<span class="c-key">from</span> langchain_google_genai <span class="c-key">import</span> ChatGoogleGenerativeAI
+<span class="c-key">from</span> langchain.chains <span class="c-key">import</span> RetrievalQA
+
+<span class="c-cmt"># 1. Embedding model (local, free)</span>
+embedder = HuggingFaceEmbeddings(
+    model_name=<span class="c-str">"BAAI/bge-m3"</span>,
+    model_kwargs={<span class="c-str">"device"</span>: <span class="c-str">"cpu"</span>}
+)
+
+<span class="c-cmt"># 2. Vector store</span>
+vectordb = Chroma(
+    persist_directory=<span class="c-str">"./data/chroma"</span>,
+    embedding_function=embedder
+)
+
+<span class="c-cmt"># 3. LLM (Gemini Flash — free 15 req/min)</span>
+llm = ChatGoogleGenerativeAI(
+    model=<span class="c-str">"gemini-1.5-flash"</span>,
+    temperature=<span class="c-num">0.1</span>
+)
+
+<span class="c-cmt"># 4. RAG Chain</span>
+qa_chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    retriever=vectordb.as_retriever(search_kwargs={<span class="c-str">"k"</span>: <span class="c-num">5</span>}),
+    return_source_documents=<span class="c-str">True</span>
+)
+
+<span class="c-cmt"># 5. Query</span>
+result = qa_chain.invoke({<span class="c-str">"query"</span>: <span class="c-str">"Định lý Bayes dùng để làm gì?"</span>})
+<span class="c-fn">print</span>(result[<span class="c-str">"result"</span>])         <span class="c-cmt"># Câu trả lời</span>
+<span class="c-fn">print</span>(result[<span class="c-str">"source_documents"</span>]) <span class="c-cmt"># Nguồn trích dẫn</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── 8. ROADMAP ── -->
+<section id="roadmap" class="section fade-in">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <div>
+      <div class="section-title">Roadmap 10 Tuần</div>
+      <div class="section-desc">Thứ tự học và xây dựng hợp lý nhất</div>
+    </div>
+  </div>
+
+  <div class="phase-wrap">
+
+    <div class="phase">
+      <div class="phase-dot" style="border-color:var(--cyan);color:var(--cyan)">W1</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <span class="phase-title">Nền tảng & Setup môi trường</span>
+          <span class="phase-week" style="background:rgba(34,211,238,.1);color:var(--cyan)">Tuần 1</span>
+        </div>
+        <ul class="phase-list">
+          <li>Cài Python 3.11, venv, Git, Docker Desktop</li>
+          <li>Đọc hiểu: LLM là gì, embedding là gì, vector similarity</li>
+          <li>Thực hành: gọi Gemini Flash API, in ra response</li>
+          <li>Thực hành: chạy Ollama local, chat với Llama 3.1</li>
+          <li>Mục tiêu: hiểu token, temperature, system prompt</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-dot" style="border-color:var(--violet);color:var(--violet)">W2</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <span class="phase-title">Embedding & Vector Database</span>
+          <span class="phase-week" style="background:rgba(167,139,250,.1);color:var(--violet)">Tuần 2</span>
+        </div>
+        <ul class="phase-list">
+          <li>Học khái niệm: embedding vector, cosine similarity, ANN search</li>
+          <li>Thực hành: load bge-m3, embed 10 câu, visualize bằng matplotlib</li>
+          <li>Cài ChromaDB, insert 100 chunks, query similarity search</li>
+          <li>Mục tiêu: nhìn thấy "tại sao câu A gần câu B hơn câu C"</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-dot" style="border-color:var(--emerald);color:var(--emerald)">W3</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <span class="phase-title">PDF Parsing & Naive RAG</span>
+          <span class="phase-week" style="background:rgba(52,211,153,.1);color:var(--emerald)">Tuần 3–4</span>
+        </div>
+        <ul class="phase-list">
+          <li>Parse 1 PDF bằng PyMuPDF → extract text từng trang</li>
+          <li>Implement chunking với RecursiveCharacterTextSplitter</li>
+          <li>Embed tất cả chunks → store vào ChromaDB</li>
+          <li>Viết query function: embed câu hỏi → top-5 chunks → LLM answer</li>
+          <li>Mục tiêu cuối: hỏi đáp được trên 1 file PDF cụ thể + có citation</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-dot" style="border-color:var(--amber);color:var(--amber)">W5</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <span class="phase-title">Image Pipeline + Slide Generator Core <span class="new-badge">NEW</span></span>
+          <span class="phase-week" style="background:rgba(251,191,36,.1);color:var(--amber)">Tuần 5–7</span>
+        </div>
+        <ul class="phase-list">
+          <li>Dùng Gemini Flash Vision: gửi ảnh → nhận mô tả văn bản → embed vào ChromaDB</li>
+          <li>Test image query: hỏi về ảnh đã upload → hệ thống trả lời đúng</li>
+          <li>Viết slide_generator.py với Pydantic schema (SlideContent, SlidePresentation)</li>
+          <li>Implement 2-step LLM: outline planning → per-slide content generation</li>
+          <li>Tham số hoá grade_level + difficulty → prompt thay đổi tương ứng</li>
+          <li>Cài python-pptx → render SlidePresentation → file .pptx download được</li>
+          <li>Wrap vào FastAPI: POST /api/v1/slides/generate + GET /download</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-dot" style="border-color:var(--rose);color:var(--rose)">W8</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <span class="phase-title">Advanced RAG — Hybrid Search + Reranker + HyDE</span>
+          <span class="phase-week" style="background:rgba(251,113,133,.1);color:var(--rose)">Tuần 8–9</span>
+        </div>
+        <ul class="phase-list">
+          <li>Implement hybrid search: BM25 (rank_bm25) + Vector + RRF merge</li>
+          <li>Thêm CrossEncoder reranker (ms-marco-MiniLM-L-12-v2)</li>
+          <li>Implement HyDE: query → hypothetical answer → embed</li>
+          <li>Citation chính xác: response ghi rõ [file, trang X]</li>
+          <li>Đo RAGAS trước/sau → phải đạt Faithfulness ≥ 0.75</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-dot" style="border-color:var(--cyan);color:var(--cyan)">W10</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <span class="phase-title">FastAPI + Streamlit UI + Quiz + Docker + Eval</span>
+          <span class="phase-week" style="background:rgba(34,211,238,.1);color:var(--cyan)">Tuần 10</span>
+        </div>
+        <ul class="phase-list">
+          <li>Wrap toàn bộ logic vào FastAPI endpoints (upload, query, slides, quiz, history)</li>
+          <li>Xây Streamlit UI: Tab Chat · Tab Slides · Tab Quiz · Tab Documents</li>
+          <li>Slide Generator: thêm Visual Story Mode (Pollinations.ai + Pillow) làm tính năng Bonus</li>
+          <li>Chạy RAGAS evaluation trên test questions: Faithfulness, Relevancy</li>
+          <li>Docker Compose: backend + qdrant + postgres</li>
+          <li>Viết README, record demo video 3 phút</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── 9. DEPLOY ── -->
+<section id="deploy" class="section fade-in">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <div>
+      <div class="section-title">Deploy & Vận hành</div>
+      <div class="section-desc">Đưa project lên để người khác dùng được</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">🐳 docker-compose.yml cơ bản</div>
+    <div class="code-block">
+      <span class="lang">yaml</span>
+<span class="c-key">version</span>: <span class="c-str">'3.9'</span>
+<span class="c-key">services</span>:
+  <span class="c-key">backend</span>:
+    <span class="c-key">build</span>: ./backend
+    <span class="c-key">ports</span>: [<span class="c-str">"8000:8000"</span>]
+    <span class="c-key">volumes</span>: [<span class="c-str">"./data:/app/data"</span>]
+    <span class="c-key">environment</span>:
+      - <span class="c-str">GEMINI_API_KEY=${GEMINI_API_KEY}</span>
+    <span class="c-key">depends_on</span>: [qdrant]
+
+  <span class="c-key">qdrant</span>:
+    <span class="c-key">image</span>: qdrant/qdrant:latest
+    <span class="c-key">ports</span>: [<span class="c-str">"6333:6333"</span>]
+    <span class="c-key">volumes</span>: [<span class="c-str">"qdrant_storage:/qdrant/storage"</span>]
+
+  <span class="c-key">frontend</span>:
+    <span class="c-key">build</span>: ./frontend
+    <span class="c-key">ports</span>: [<span class="c-str">"8501:8501"</span>]
+    <span class="c-key">depends_on</span>: [backend]
+
+<span class="c-key">volumes</span>:
+  qdrant_storage:
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:8px;color:var(--emerald)">🆓 Free Deploy Options</div>
+      <div class="card-body">
+        <strong style="color:var(--txt)">Railway.app:</strong> deploy Docker container free $5 credit/tháng. Phù hợp backend FastAPI.<br><br>
+        <strong style="color:var(--txt)">Streamlit Cloud:</strong> deploy app.py trực tiếp từ GitHub. Hoàn toàn free.<br><br>
+        <strong style="color:var(--txt)">Cloudflare R2:</strong> lưu file .pptx xuất ra — 10GB free, không tính phí egress.
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:8px;color:var(--cyan)">📊 Monitoring cần biết</div>
+      <div class="card-body">
+        <strong style="color:var(--txt)">Log LLM calls:</strong> lưu query, retrieved chunks, answer vào SQLite để debug.<br><br>
+        <strong style="color:var(--txt)">Track latency:</strong> đo thời gian embed, retrieve, generate, slide_render riêng lẻ.<br><br>
+        <strong style="color:var(--txt)">RAGAS metrics:</strong> chạy định kỳ trên test set để phát hiện regression.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 10. GOTCHA ── -->
+<section id="gotcha" class="section fade-in">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <div>
+      <div class="section-title">Những điều cần biết trước khi làm</div>
+      <div class="section-desc">Các vấn đề thực tế thường gặp khi triển khai hệ thống này</div>
+    </div>
+  </div>
+
+  <div class="callout c-rose" style="background:rgba(251,113,133,.04);border-color:rgba(251,113,133,.2)">
+    <div class="callout-title" style="color:var(--rose)">⚠️ Chunking sai là lỗi số 1</div>
+    <p>Chunk quá nhỏ → thiếu context, LLM không đủ thông tin trả lời. Chunk quá lớn → vượt context window, noise nhiều. <strong style="color:var(--txt)">Bắt đầu với 500 tokens, overlap 20%</strong>, rồi thử nghiệm với dataset của bạn. Đặc biệt quan trọng vì Slide Generator cũng phụ thuộc vào chất lượng chunks.</p>
+  </div>
+
+  <div class="callout c-am" style="background:rgba(251,191,36,.04);border-color:rgba(251,191,36,.2)">
+    <div class="callout-title" style="color:var(--amber)">⚠️ Embedding model phải khớp ngôn ngữ</div>
+    <p>Nếu document tiếng Việt mà dùng <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--cyan)">all-MiniLM-L6-v2</code> (model tiếng Anh) → retrieval rất kém. Dùng <strong style="color:var(--txt)">bge-m3</strong> (multilingual, hỗ trợ 100+ ngôn ngữ) hoặc <strong style="color:var(--txt)">intfloat/multilingual-e5-large</strong> khi làm với tiếng Việt.</p>
+  </div>
+
+  <div class="callout c-violet" style="background:rgba(167,139,250,.04);border-color:rgba(167,139,250,.2)">
+    <div class="callout-title" style="color:var(--violet)">⚠️ Slide Generator — Hallucination vẫn xảy ra</div>
+    <p>LLM có thể bịa nội dung slide không có trong tài liệu. Giải pháp: (1) <strong style="color:var(--txt)">Grounding bắt buộc</strong> — prompt phải yêu cầu LLM chỉ dùng context từ RAG; (2) Luôn hiển thị <strong style="color:var(--txt)">sources</strong> trong file slide để user biết nội dung từ đâu; (3) Nếu topic không có trong DB → thông báo rõ thay vì sinh slide giả.</p>
+  </div>
+
+  <div class="callout c-cyan" style="background:rgba(34,211,238,.04);border-color:rgba(34,211,238,.2)">
+    <div class="callout-title" style="color:var(--cyan)">💡 PDF scan (ảnh) cần OCR riêng</div>
+    <p>PyMuPDF chỉ extract text từ PDF có text layer. PDF scan (chụp ảnh) sẽ cho ra text rỗng. Cần thêm <strong style="color:var(--txt)">Tesseract OCR</strong> hoặc gửi từng trang qua Vision model. Đây là edge case quan trọng với tài liệu Việt Nam (nhiều sách scan).</p>
+  </div>
+
+  <div class="callout c-em" style="background:rgba(52,211,153,.04);border-color:rgba(52,211,153,.2)">
+    <div class="callout-title" style="color:var(--emerald)">✅ Thứ tự nên học để hiểu sâu nhất</div>
+    <p><strong style="color:var(--txt)">1. Xây naive RAG không dùng framework</strong> (raw Python + ChromaDB + Gemini API) → hiểu từng bước. <strong style="color:var(--txt)">2. Thêm Slide Generator</strong> → áp dụng RAG theo hướng ngược (tổng hợp thay vì trả lời). <strong style="color:var(--txt)">3. Refactor với LangChain</strong> → hiểu tại sao framework giúp được gì. <strong style="color:var(--txt)">4. Thêm Image pipeline</strong> → hiểu multimodal. Đừng dùng framework ngay từ đầu.</p>
+  </div>
+</section>
+
+<!-- footer -->
+<div style="border-top:1px solid var(--border);padding-top:24px;margin-top:32px;font-size:12px;color:var(--muted);text-align:center">
+  E-Learning AI Assistant · Project Blueprint v3.0 · Audio removed · Slide Generator added · Production Gaps documented
+</div>
+
+<!-- ── 11. PRODUCTION GAPS ── -->
+<section id="gaps" class="section fade-in" style="margin-top:64px">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <div>
+      <div class="section-title">Production Gaps — 13 Vấn Đề Cần Fix</div>
+      <div class="section-desc">Roadmap nâng cấp từ đồ án → hệ thống production-grade</div>
+    </div>
+  </div>
+
+  <div class="callout c-rose" style="background:rgba(251,113,133,.04);border-color:rgba(251,113,133,.2)">
+    <div class="callout-title" style="color:var(--rose)">🎯 Tại sao cần biết các gap này?</div>
+    <p>Hệ thống đồ án hoạt động tốt khi 1 user dùng một mình. Khi scale lên 10+ users đồng thời, hoặc deploy thật, các vấn đề sau đây sẽ xuất hiện. Hiểu và fix chúng là bước từ <strong style="color:var(--txt)">junior → mid-level engineer</strong>.</p>
+  </div>
+
+  <!-- Gap severity legend -->
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+    <span class="tag t-rose">🔴 Critical — production-blocking</span>
+    <span class="tag t-am">🟡 Important — nên fix</span>
+    <span class="tag t-em">🟢 Nice-to-have</span>
+  </div>
+
+  <!-- Gaps 1-5: Critical -->
+  <div class="card" style="border-color:rgba(251,113,133,.3)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,113,133,.15);font-size:18px">1</div>
+      <div>
+        <div class="card-title">🔴 Async Task Queue <span class="tag t-rose" style="font-size:9px">BLOCKING</span></div>
+        <div class="card-sub">Slide gen 60s + PDF lớn đang block request thread</div>
+      </div>
+    </div>
+    <div class="card-body">FastAPI đang xử lý slide generation (~60s) và PDF parsing (~30s) <strong style="color:var(--txt)">synchronously trong request thread</strong>. 2 users cùng generate slide → server treo hoàn toàn.<br><br>
+    <strong style="color:var(--cyan)">Fix:</strong> Dùng <strong style="color:var(--txt)">ARQ</strong> (async, Redis-based) hoặc <strong style="color:var(--txt)">Celery</strong>. POST /generate → trả job_id ngay (&lt;100ms) → worker xử lý background → user poll status.</div>
+    <div class="tags"><span class="tag t-cyan">ARQ</span><span class="tag t-cyan">Celery</span><span class="tag t-violet">Redis Queue</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(251,113,133,.3)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,113,133,.15);font-size:18px">2</div>
+      <div>
+        <div class="card-title">🔴 Rate Limit + Retry cho Gemini API <span class="tag t-rose" style="font-size:9px">BLOCKING</span></div>
+        <div class="card-sub">15 req/min — crash ngay khi ingest PDF lớn</div>
+      </div>
+    </div>
+    <div class="card-body">Gemini Flash free tier: <strong style="color:var(--rose)">15 req/min, 1M tokens/day</strong>. Ingest PDF 500 chunks có Vision calls → crash <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--rose)">429 ResourceExhausted</code> ngay lập tức.<br><br>
+    <strong style="color:var(--cyan)">Fix:</strong> Dùng <strong style="color:var(--txt)">tenacity</strong> (exponential backoff, 5 retries) + <strong style="color:var(--txt)">Token Bucket rate limiter</strong> (14 req/min để có buffer).</div>
+    <div class="tags"><span class="tag t-cyan">tenacity</span><span class="tag t-violet">Exponential Backoff</span><span class="tag t-am">Token Bucket</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(251,113,133,.3)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,113,133,.15);font-size:18px">3</div>
+      <div>
+        <div class="card-title">🔴 Batch Embedding <span class="tag t-rose" style="font-size:9px">BLOCKING</span></div>
+        <div class="card-sub">500 chunks = O(n) sequential calls → ~250s</div>
+      </div>
+    </div>
+    <div class="card-body">Mỗi chunk đang được embed <strong style="color:var(--rose)">riêng lẻ</strong> (sequential loop). 500 chunks × 0.5s/chunk = 250s chỉ để embed.<br><br>
+    <strong style="color:var(--cyan)">Fix:</strong> Dùng <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--cyan)">embedder.encode(batch, batch_size=64)</code>. 500 chunks giảm từ 250s → <strong style="color:var(--emerald)">~15s (16x nhanh hơn)</strong>.</div>
+    <div class="tags"><span class="tag t-em">16x Speedup</span><span class="tag t-cyan">batch_size=64</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(251,113,133,.3)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,113,133,.15);font-size:18px">4</div>
+      <div>
+        <div class="card-title">🔴 Document Deduplication <span class="tag t-rose" style="font-size:9px">BLOCKING</span></div>
+        <div class="card-sub">Re-upload → double vectors trong DB</div>
+      </div>
+    </div>
+    <div class="card-body">Upload cùng file 2 lần → chunks bị insert lần 2 → <strong style="color:var(--rose)">duplicate vectors</strong> → retrieval nhiễu, RAG trả lời sai, tốn storage.<br><br>
+    <strong style="color:var(--cyan)">Fix:</strong> Hash file bằng <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--cyan)">hashlib.sha256</code> → check DB trước khi ingest → trả <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--emerald)">"status": "duplicate"</code> nếu đã tồn tại.</div>
+    <div class="tags"><span class="tag t-cyan">SHA-256 Hash</span><span class="tag t-violet">Idempotent Ingest</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(251,113,133,.3)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,113,133,.15);font-size:18px">5</div>
+      <div>
+        <div class="card-title">🔴 Embedded Images trong PDF <span class="tag t-rose" style="font-size:9px">BLOCKING</span></div>
+        <div class="card-sub">Hình nhúng trong PDF chưa được extract và xử lý</div>
+      </div>
+    </div>
+    <div class="card-body">PyMuPDF extract text nhưng <strong style="color:var(--rose)">bỏ qua hình ảnh nhúng</strong> (biểu đồ, sơ đồ, công thức scan). Tài liệu toán học → mất 30-50% nội dung.<br><br>
+    <strong style="color:var(--cyan)">Fix:</strong> Dùng <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--cyan)">page.get_images(full=True)</code> → extract image bytes → gửi qua Gemini Vision → embed description như text chunk.</div>
+    <div class="tags"><span class="tag t-violet">PyMuPDF extract_image</span><span class="tag t-cyan">Vision LLM</span></div>
+  </div>
+
+  <!-- Gaps 6-10: Important -->
+  <div class="card" style="border-color:rgba(251,191,36,.25)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,191,36,.1);font-size:18px">6</div>
+      <div>
+        <div class="card-title">🟡 Caching Layer (Redis)</div>
+        <div class="card-sub">Same query embed lại mỗi lần, LLM call không cache</div>
+      </div>
+    </div>
+    <div class="card-body">Mỗi query đều chạy bge-m3 encode (~200ms) dù đã hỏi câu y hệt trước đó. LLM calls cũng không được cache → tốn Gemini quota.<br><br>
+    <strong style="color:var(--cyan)">Fix:</strong> Two-level Redis cache: <strong style="color:var(--txt)">embed cache (TTL 1h)</strong> + <strong style="color:var(--txt)">LLM response cache (TTL 24h)</strong> với MD5 key. Query lần 2 nhanh hơn ≥ 3x.</div>
+    <div class="tags"><span class="tag t-cyan">Redis</span><span class="tag t-am">TTL 1h / 24h</span><span class="tag t-em">3x Speedup</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(251,191,36,.25)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,191,36,.1);font-size:18px">7</div>
+      <div>
+        <div class="card-title">🟡 Docker Compose Production-Ready</div>
+        <div class="card-sub">Thiếu Postgres, NGINX, healthchecks, resource limits</div>
+      </div>
+    </div>
+    <div class="card-body">docker-compose.yml hiện tại thiếu: <strong style="color:var(--rose)">postgres service, nginx, redis, healthcheck</strong> cho mỗi service, <strong style="color:var(--rose)">resource limits</strong> (1 container có thể eat toàn bộ RAM), <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--rose)">depends_on</code> không dùng <code style="font-family:IBM Plex Mono;font-size:11px">condition: service_healthy</code>.<br><br>
+    <strong style="color:var(--cyan)">Fix:</strong> 7 services: nginx + frontend + backend + worker + qdrant + postgres + redis. Mỗi service có healthcheck + resource limits.</div>
+    <div class="tags"><span class="tag t-cyan">7 services</span><span class="tag t-violet">healthcheck</span><span class="tag t-am">resource limits</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(251,191,36,.25)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,191,36,.1);font-size:18px">8</div>
+      <div>
+        <div class="card-title">🟡 Multi-tenancy</div>
+        <div class="card-sub">User A có thể query vào chunks của user B</div>
+      </div>
+    </div>
+    <div class="card-body">Mọi users đang share <strong style="color:var(--rose)">cùng 1 Qdrant collection</strong> không có phân tách. User A upload tài liệu → User B query cùng topic → có thể retrieve được thông tin của user A.<br><br>
+    <strong style="color:var(--cyan)">Fix:</strong> Thêm <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--cyan)">user_id</code> vào mọi chunk payload. Mọi Qdrant search phải có <code style="font-family:IBM Plex Mono;font-size:11px">query_filter</code> theo <code style="font-family:IBM Plex Mono;font-size:11px">user_id</code>.</div>
+    <div class="tags"><span class="tag t-cyan">user_id Filter</span><span class="tag t-violet">Data Isolation</span><span class="tag t-am">JWT Claims</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(251,191,36,.25)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,191,36,.1);font-size:18px">9</div>
+      <div>
+        <div class="card-title">🟡 Streaming SSE</div>
+        <div class="card-sub">LLM 10-15s không stream là UX tệ</div>
+      </div>
+    </div>
+    <div class="card-body">User gửi câu hỏi → <strong style="color:var(--rose)">nhìn màn hình trắng 10-15 giây</strong> → không biết hệ thống có đang làm gì hay bị lỗi. Trải nghiệm tệ, tỷ lệ bounce cao.<br><br>
+    <strong style="color:var(--cyan)">Fix:</strong> FastAPI <strong style="color:var(--txt)">StreamingResponse</strong> với <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--cyan)">text/event-stream</code>. Token đầu tiên trong &lt;2s, stream liên tục đến khi xong. Streamlit hỗ trợ SSE với <code style="font-family:IBM Plex Mono;font-size:11px">st.write_stream()</code>.</div>
+    <div class="tags"><span class="tag t-cyan">SSE</span><span class="tag t-violet">StreamingResponse</span><span class="tag t-em">&lt;2s TTFT</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(251,191,36,.25)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(251,191,36,.1);font-size:18px">10</div>
+      <div>
+        <div class="card-title">🟡 Conversation Memory Guardrail</div>
+        <div class="card-sub">Context window overflow sau 20-30 turns</div>
+      </div>
+    </div>
+    <div class="card-body">Lịch sử hội thoại tích lũy không giới hạn → sau 20-30 turns vượt context window → <strong style="color:var(--rose)">crash hoặc LLM bỏ bớt context</strong> tùy tiện.<br><br>
+    <strong style="color:var(--cyan)">Fix:</strong> Sliding window + summarization. Khi history &gt;3000 tokens → LLM tóm tắt các turn cũ → chỉ giữ summary + 3 turn gần nhất trong context.</div>
+    <div class="tags"><span class="tag t-cyan">Sliding Window</span><span class="tag t-violet">Summarization</span><span class="tag t-am">4K Token Limit</span></div>
+  </div>
+
+  <!-- Gaps 11-13: Nice-to-have -->
+  <div class="card" style="border-color:rgba(52,211,153,.2)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(52,211,153,.1);font-size:18px">11</div>
+      <div>
+        <div class="card-title">🟢 Load Testing & Security Testing</div>
+        <div class="card-sub">Prompt injection chưa được test</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <strong style="color:var(--txt)">Load testing với Locust:</strong> 20 concurrent users, target p95 &lt;20s, failure rate &lt;1%.<br><br>
+      <strong style="color:var(--txt)">Prompt injection:</strong> Test các payload như <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--rose)">"Ignore all instructions"</code>, <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--rose)">"output your API key"</code>. System prompt grounding + output validation là defense chính.</div>
+    <div class="tags"><span class="tag t-em">Locust</span><span class="tag t-em">Prompt Injection</span><span class="tag t-cyan">OWASP LLM Top 10</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(52,211,153,.2)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(52,211,153,.1);font-size:18px">12</div>
+      <div>
+        <div class="card-title">🟢 Visual Story Mode Test Cases</div>
+        <div class="card-sub">Chưa có test case nào cho tính năng mới</div>
+      </div>
+    </div>
+    <div class="card-body">Visual Story Mode (Pollinations.ai + Pillow comic panel) chưa có automated tests. Schema validation cho <code style="font-family:IBM Plex Mono;font-size:11px;color:var(--cyan)">panels</code>, image fetch test, Pillow 2×2 grid render test đều cần được bổ sung để tránh regression.</div>
+    <div class="tags"><span class="tag t-violet">Pollinations.ai</span><span class="tag t-cyan">Pillow</span><span class="tag t-am">Schema Validation</span></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(52,211,153,.2)">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(52,211,153,.1);font-size:18px">13</div>
+      <div>
+        <div class="card-title">🟢 CI/CD Pipeline</div>
+        <div class="card-sub">GitHub Actions chưa được thiết lập</div>
+      </div>
+    </div>
+    <div class="card-body">Không có pipeline tự động → mỗi lần merge có thể break build mà không biết. <strong style="color:var(--txt)">GitHub Actions</strong> với 2 jobs: (1) unit + integration tests với Qdrant service, (2) Docker Compose build + healthcheck. PR blocked nếu CI fail.</div>
+    <div class="tags"><span class="tag t-em">GitHub Actions</span><span class="tag t-cyan">Auto Tests</span><span class="tag t-violet">Docker Build CI</span></div>
+  </div>
+
+  <div class="callout c-em" style="background:rgba(52,211,153,.04);border-color:rgba(52,211,153,.2)">
+    <div class="callout-title" style="color:var(--emerald)">✅ Thứ tự ưu tiên fix</div>
+    <p><strong style="color:var(--rose)">Ngay bây giờ (trước demo):</strong> Gap 4 (Dedup) + Gap 8 (Multi-tenancy) — ảnh hưởng data integrity.<br>
+    <strong style="color:var(--amber)">Sau demo (trước production):</strong> Gap 1 (Async) + Gap 2 (Rate limit) + Gap 3 (Batch) + Gap 9 (SSE).<br>
+    <strong style="color:var(--emerald)">Nice-to-have:</strong> Gap 6 (Cache) + Gap 11-13.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'});
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  event.target.closest('.nav-link').classList.add('active');
+}
+
+// Intersection observer for active nav
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.nav-link');
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      const id = e.target.id;
+      navLinks.forEach(l => {
+        l.classList.toggle('active', l.getAttribute('onclick')?.includes(id));
+      });
+    }
+  });
+}, {threshold:0.3});
+sections.forEach(s => obs.observe(s));
+
+// Fade in observer
+const fadeEls = document.querySelectorAll('.fade-in');
+const fadeObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) e.target.classList.add('visible');
+  });
+}, {threshold:0.1});
+fadeEls.forEach(el => fadeObs.observe(el));
+</script>
+</body>
+</html>
