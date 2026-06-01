@@ -1,0 +1,32 @@
+# Cốt lõi
+fastapi==0.111.0
+uvicorn==0.30.1
+pydantic==2.7.4
+python-dotenv==1.0.1
+
+# AI & RAG
+langchain==0.2.6
+langchain-community==0.2.6
+langchain-google-genai==1.0.6
+langchain-huggingface==0.0.3
+sentence-transformers==3.0.1
+chromadb==0.5.3
+
+# PDF & Data parsing
+PyMuPDF==1.24.5     # fitz
+pdfplumber==0.11.1
+
+# Slide Generator (Tính năng đặc trưng)
+python-pptx==0.6.23
+Pillow==10.3.0
+requests==2.32.3
+
+# Frontend
+streamlit==1.36.0
+
+# Evaluation (Phase sau)
+# ragas==0.1.9
+
+# Thực nghiệm trực quan (Jupyter Notebooks)
+jupyter==1.0.0
+ipykernel==6.29.4

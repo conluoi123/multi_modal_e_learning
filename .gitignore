@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+env/
+.env
+
+# Environment variables
+.env
+.env.local
+
+# Databases
+*.sqlite3
+*.db
+backend/chroma/
+
+# Uploaded data & processed output
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/slides/*
+!data/slides/.gitkeep
+
+# IDEs / Editor folders
+.vscode/
+.idea/
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
