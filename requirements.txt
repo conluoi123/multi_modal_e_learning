@@ -30,3 +30,7 @@ streamlit==1.36.0
 # Thực nghiệm trực quan (Jupyter Notebooks)
 jupyter==1.0.0
 ipykernel==6.29.4
+
+# test 
+pytest 
+
