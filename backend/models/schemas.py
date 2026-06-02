@@ -25,3 +25,5 @@ class SlidePresentation(BaseModelV1):
 class SlideRequest(BaseModel): 
     topic: str 
     n_slides: int = 5 
+    template_name: str = "corporate"
+    
