@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from backend.api.routers import ingest, query
+from backend.api.routers import ingest, query, slides, documents, quiz,chat
 
 app = FastAPI(
     title="Multimodal E-Learning AI API",
@@ -10,6 +10,10 @@ app = FastAPI(
 # Nhúng (include) các "nhánh" router vào app chính
 app.include_router(ingest.router)
 app.include_router(query.router)
+app.include_router(slides.router)
+app.include_router(documents.router)
+app.include_router(quiz.router)
+app.include_router(chat.router)
 
 @app.get("/health")
 def health_check():

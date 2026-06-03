@@ -1,70 +1,188 @@
-import os 
-from dotenv import load_dotenv 
-from langchain_google_genai import ChatGoogleGenerativeAI 
-from langchain.prompts import PromptTemplate 
+"""
+Tầng sinh câu trả lời cho RAG.
 
-load_dotenv()
+Nhiệm vụ:
+- Khởi tạo mô hình Gemini.
+- Tạo prompt từ các chunk đã truy xuất.
+- Sinh câu trả lời dựa trên tài liệu và kèm nguồn trích dẫn.
+"""
 
-def get_llm(): 
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key: 
-        raise ValueError("Lỗi: Không có API key trong .env")
-    
-    return ChatGoogleGenerativeAI(
-        model="gemini-3.1-flash-lite",
-        google_api_key = api_key, 
-        temperature=0.3
-    )
+from langchain.prompts import PromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-def generate_answer(query: str, retrived_chunks: list[dict]) -> str: 
-    '''
-        Sinh câu trloi dựa trên retrived 
-    '''
-    context_text = ""
-    for chunk in retrived_chunks: 
-        source = chunk["metadata"].get("source", "Unknown")
-        page = chunk["metadata"].get("page", "?")
-        context_text += f"\n[Nguồn : {source} - Trang {page}]\n {chunk['text']}\n"
+from backend.core.config import GEMINI_API_KEY, GEMINI_MODEL
 
-    # promt 
-    template = """
-    Bạn là một trợ lý AI học tập thông minh. Nhiệm vụ của bạn là trả lời câu hỏi dựa trên TÀI LIỆU CUNG CẤP dưới đây.
-    
-    QUY TẮC BẮT BUỘC:
-    1. CHỈ sử dụng thông tin trong tài liệu để trả lời. TUYỆT ĐỐI Không tự bịa đặt thêm.
-    2. Nếu tài liệu không chứa thông tin, hãy nói: "Xin lỗi, tôi không tìm thấy thông tin này trong tài liệu."
-    3. Cuối câu trả lời, hãy ghi chú nguồn (Ví dụ: Nguồn: sample.pdf - Trang X).
-    
-    TÀI LIỆU CUNG CẤP:
-    {context}
-    
-    CÂU HỎI CỦA NGƯỜI DÙNG: {question}
-    
-    TRẢ LỜI:
+
+_NO_CONTEXT_ANSWER = "Xin lỗi, tôi không tìm thấy thông tin này trong tài liệu."
+
+_llm: ChatGoogleGenerativeAI | None = None
+
+
+def get_llm() -> ChatGoogleGenerativeAI:
     """
+    Khởi tạo và cache mô hình Gemini.
+    """
+    global _llm
+
+    if not GEMINI_API_KEY:
+        raise ValueError("Thiếu GEMINI_API_KEY. Vui lòng cấu hình trong file .env.")
+
+    if _llm is None:
+        print(f"Đang khởi tạo mô hình Gemini: {GEMINI_MODEL}")
+        _llm = ChatGoogleGenerativeAI(
+            model=GEMINI_MODEL,
+            google_api_key=GEMINI_API_KEY,
+            temperature=0.3,
+        )
+
+    return _llm
+
+
+def format_context(retrieved_chunks: list[dict]) -> str:
+    """
+    Chuyển các chunk đã truy xuất thành context để đưa vào prompt.
+    """
+    context_parts = []
+
+    for chunk in retrieved_chunks:
+        metadata = chunk.get("metadata", {})
+        source = metadata.get("source", "Unknown")
+        page = metadata.get("page", "?")
+        text = chunk.get("text", "").strip()
+
+        if not text:
+            continue
+
+        context_parts.append(
+            f"[Nguồn: {source} - Trang {page}]\n{text}"
+        )
+
+    return "\n\n".join(context_parts)
+
+
+def generate_answer(query: str, retrieved_chunks: list[dict]) -> str:
+    """
+    Sinh câu trả lời dựa trên câu hỏi và các chunk tài liệu đã truy xuất.
+    """
+    context_text = format_context(retrieved_chunks)
+
+    if not context_text:
+        return _NO_CONTEXT_ANSWER
+
+    template = """
+Bạn là một trợ lý AI học tập thông minh.
+
+Nhiệm vụ:
+Trả lời câu hỏi của người dùng dựa trên TÀI LIỆU CUNG CẤP.
+
+Quy tắc bắt buộc:
+1. Chỉ sử dụng thông tin trong tài liệu được cung cấp.
+2. Không tự bịa thêm thông tin ngoài tài liệu.
+3. Nếu tài liệu không có đủ thông tin, hãy nói rõ là không tìm thấy thông tin trong tài liệu.
+4. Trả lời bằng tiếng Việt, rõ ràng, có cấu trúc.
+5. Cuối câu trả lời phải ghi nguồn theo định dạng: Nguồn: tên_file - Trang X.
+
+TÀI LIỆU CUNG CẤP:
+{context}
+
+CÂU HỎI:
+{question}
+
+TRẢ LỜI:
+""".strip()
+
     prompt = PromptTemplate(
         input_variables=["context", "question"],
-        template=template
+        template=template,
     )
 
     final_prompt = prompt.format(context=context_text, question=query)
 
     llm = get_llm()
-    print(f"Đang gửi câu hỏi cho Gemini suy nghĩ...")
-    res = llm.invoke(final_prompt)
-    return res.content
+    print("Đang gửi câu hỏi kèm ngữ cảnh tài liệu cho Gemini...")
+    response = llm.invoke(final_prompt)
+
+    return response.content
+
+def format_chat_history(history: list[dict[str, str]]) -> str:
+    if not history:
+        return "Chưa có lịch sử hội thoại."
+
+    lines = []
+    for message in history:
+        role = "Người dùng" if message["role"] == "user" else "Trợ lý"
+        lines.append(f"{role}: {message['content']}")
+
+    return "\n".join(lines)
+
+
+def generate_chat_answer(
+    question: str,
+    retrieved_chunks: list[dict],
+    history: list[dict[str, str]],
+) -> str:
+    context_text = format_context(retrieved_chunks)
+
+    if not context_text:
+        return _NO_CONTEXT_ANSWER
+
+    history_text = format_chat_history(history)
+
+    template = """
+Bạn là một trợ lý AI học tập thông minh.
+
+Nhiệm vụ:
+Trả lời câu hỏi hiện tại của người dùng dựa trên TÀI LIỆU CUNG CẤP và LỊCH SỬ HỘI THOẠI.
+
+Quy tắc bắt buộc:
+1. Chỉ dùng tài liệu được cung cấp để trả lời nội dung kiến thức.
+2. Có thể dùng lịch sử hội thoại để hiểu ngữ cảnh câu hỏi.
+3. Không bịa thông tin ngoài tài liệu.
+4. Nếu tài liệu không đủ thông tin, hãy nói rõ là không tìm thấy trong tài liệu.
+5. Trả lời bằng tiếng Việt.
+6. Cuối câu trả lời ghi nguồn theo định dạng: Nguồn: tên_file - Trang X.
+
+LỊCH SỬ HỘI THOẠI:
+{history}
+
+TÀI LIỆU CUNG CẤP:
+{context}
+
+CÂU HỎI HIỆN TẠI:
+{question}
+
+TRẢ LỜI:
+""".strip()
+
+    prompt = PromptTemplate(
+        input_variables=["history", "context", "question"],
+        template=template,
+    )
+
+    final_prompt = prompt.format(
+        history=history_text,
+        context=context_text,
+        question=question,
+    )
+
+    llm = get_llm()
+    print("Đang gửi câu hỏi chat kèm lịch sử hội thoại cho Gemini...")
+    response = llm.invoke(final_prompt)
+
+    return response.content
+
 
 if __name__ == "__main__":
-    from backend.rag.retriever import retrive_context
-    
+    from backend.rag.retriever import retrieve_context
+
     test_query = "Nhóm cần làm mấy tiêu chí, tiêu chí báo cáo tiếng Việt bao nhiêu điểm?"
-    
-    print("\n1. Đang tìm kiếm tài liệu trong DB...")
-    chunks = retrive_context(test_query, k=3)
-    
+
+    print("\n1. Đang truy xuất các đoạn tài liệu liên quan...")
+    chunks = retrieve_context(test_query, k=3)
+
     print("\n2. Đang sinh câu trả lời bằng Gemini...")
     answer = generate_answer(test_query, chunks)
-    
+
     print("\n=> CÂU TRẢ LỜI CỦA AI:")
-    print("="*60)
+    print("=" * 60)
     print(answer)
