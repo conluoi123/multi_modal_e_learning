@@ -30,29 +30,86 @@ BUILDER_SCRIPT = Path(__file__).parent / "slide_builder.js"
 # PHẦN 1: AI SINH NỘI DUNG (không đổi)
 # ──────────────────────────────────────────────
 
-def generate_slide_outline(topic: str, context: str, n_slides: int) -> SlidePresentation:
-    """AI trả về JSON để điền vào slide."""
+def generate_slide_outline(
+    topic: str,
+    context: str,
+    n_slides: int,
+    grade_level: str = "Đại học",
+    difficulty: str = "standard",
+    language: str = "vi",
+    include_speaker_notes: bool = True,
+) -> SlidePresentation:
+    """AI trả về JSON nội dung slide theo chủ đề, cấp học và độ khó."""
     llm = get_llm()
     parser = JsonOutputParser(pydantic_object=SlidePresentation)
 
+    language_instruction = "tiếng Việt" if language == "vi" else "English"
+    notes_instruction = (
+        "Mỗi slide phải có speaker_notes giúp giảng viên thuyết trình."
+        if include_speaker_notes
+        else "speaker_notes phải là chuỗi rỗng."
+    )
+
     template = """
-        Bạn là giáo sư đại học. Hãy tạo bài thuyết trình {n_slides} slides về chủ đề: '{topic}'.
-        Sử dụng TÀI LIỆU tham khảo sau:
-        {context}
+Bạn là một chuyên gia thiết kế bài giảng e-learning.
 
-        Yêu cầu mỗi slide: Tiêu đề ngắn, 3-4 ý gạch đầu dòng, và có ghi chú (speaker_notes).
+Hãy tạo bài thuyết trình gồm {n_slides} slide.
 
-        {format_instructions}
-    """
+Thông tin cấu hình:
+- Chủ đề: {topic}
+- Đối tượng học: {grade_level}
+- Mức độ: {difficulty}
+- Ngôn ngữ trình bày: {language_instruction}
+
+Tài liệu tham khảo:
+{context}
+
+Yêu cầu nội dung:
+1. Chỉ sử dụng thông tin có trong tài liệu tham khảo.
+2. Không bịa thêm nội dung ngoài tài liệu.
+3. Điều chỉnh độ khó, thuật ngữ và ví dụ cho phù hợp với đối tượng học.
+4. Nếu difficulty là "basic", giải thích đơn giản, tránh thuật ngữ quá nặng.
+5. Nếu difficulty là "advanced", có thể dùng thuật ngữ chuyên sâu hơn và thêm gợi ý thảo luận.
+6. Mỗi slide có tiêu đề ngắn, 3-4 bullet points rõ ràng.
+7. {notes_instruction}
+
+Yêu cầu định dạng:
+{format_instructions}
+"""
+
     prompt = PromptTemplate(
         template=template,
-        input_variables=["topic", "context", "n_slides"],
+        input_variables=[
+            "topic",
+            "context",
+            "n_slides",
+            "grade_level",
+            "difficulty",
+            "language_instruction",
+            "notes_instruction",
+        ],
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
 
     chain = prompt | llm | parser
-    print(f"🤖 AI đang tạo dàn ý cho {n_slides} slides...")
-    result_dict = chain.invoke({"topic": topic, "context": context, "n_slides": n_slides})
+
+    print(
+        f"AI đang tạo dàn ý cho {n_slides} slide "
+        f"về '{topic}' - cấp học: {grade_level}, mức độ: {difficulty}..."
+    )
+
+    result_dict = chain.invoke(
+        {
+            "topic": topic,
+            "context": context,
+            "n_slides": n_slides,
+            "grade_level": grade_level,
+            "difficulty": difficulty,
+            "language_instruction": language_instruction,
+            "notes_instruction": notes_instruction,
+        }
+    )
+
     return SlidePresentation(**result_dict)
 
 
@@ -135,12 +192,12 @@ def create_pptx_file(
 # ──────────────────────────────────────────────
 
 if __name__ == "__main__":
-    from backend.rag.retriever import retrive_context
+    from backend.rag.retriever import retrieve_context
 
     topic = "Tiêu chí đánh giá môn học"
 
     print("1. Đang lục tìm tài liệu...")
-    chunks = retrive_context(topic, k=3)
+    chunks = retrieve_context(topic, k=3)
     context_text = "\n".join([c["text"] for c in chunks])
 
     print("2. Bắt đầu sinh cấu trúc Slide...")
