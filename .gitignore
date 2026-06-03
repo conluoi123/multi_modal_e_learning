@@ -24,6 +24,7 @@ data/processed/*
 !data/processed/.gitkeep
 data/slides/*
 !data/slides/.gitkeep
+data/chroma_db/*
 
 # IDEs / Editor folders
 .vscode/
@@ -33,3 +34,7 @@ data/slides/*
 # OS generated files
 .DS_Store
 Thumbs.db
+
+
+before_uninstall.txt
+
