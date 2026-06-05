@@ -1,3 +1,7 @@
+'''
+    Quét chunks -> gộp tùng bằng seen = set() -> Đưa ra trích dẫn có dạng [Trang X, file Y ]
+'''
+
 def build_citations(chunks: list[dict]) -> list[dict[str, str]]:
     seen = set()
     citations = []
