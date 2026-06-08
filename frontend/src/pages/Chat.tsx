@@ -173,9 +173,10 @@ export function Chat() {
         setIsLoading(false); // Ẩn trạng thái "Đang suy nghĩ" ngay khi nhận được chunk đầu tiên
         setMessages(prev => {
           const newMessages = [...prev];
-          const lastMsg = newMessages[newMessages.length - 1];
-          if (lastMsg.role === 'assistant') {
-            lastMsg.content += chunk;
+          const lastIndex = newMessages.length - 1;
+          const lastMsg = newMessages[lastIndex];
+          if (lastMsg && lastMsg.role === 'assistant') {
+            newMessages[lastIndex] = { ...lastMsg, content: lastMsg.content + chunk };
           }
           return newMessages;
         });
