@@ -408,6 +408,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
     <a class="nav-link" onclick="scrollTo('deploy')"><span class="nav-icon">🚀</span>Deploy & Vận hành</a>
     <a class="nav-link" onclick="scrollTo('gotcha')"><span class="nav-icon">⚠️</span>Những điều cần biết</a>
     <a class="nav-link" onclick="scrollTo('gaps')"><span class="nav-icon">🔴</span>Production Gaps</a>
+    <a class="nav-link" onclick="scrollTo('intern_roadmap')"><span class="nav-icon">🎓</span>AI Intern Roadmap</a>
   </nav>
 </aside>
 
@@ -1435,6 +1436,75 @@ result = qa_chain.invoke({<span class="c-str">"query"</span>: <span class="c-str
     <p><strong style="color:var(--rose)">Ngay bây giờ (trước demo):</strong> Gap 4 (Dedup) + Gap 8 (Multi-tenancy) — ảnh hưởng data integrity.<br>
     <strong style="color:var(--amber)">Sau demo (trước production):</strong> Gap 1 (Async) + Gap 2 (Rate limit) + Gap 3 (Batch) + Gap 9 (SSE).<br>
     <strong style="color:var(--emerald)">Nice-to-have:</strong> Gap 6 (Cache) + Gap 11-13.</p>
+  </div>
+</section>
+
+<!-- ── 12. INTERN ROADMAP ── -->
+<section id="intern_roadmap" class="section fade-in" style="margin-top:64px">
+  <div class="section-header">
+    <span class="section-num">12</span>
+    <div>
+      <div class="section-title">Lộ Trình Phỏng Vấn AI Intern (3 Tháng)</div>
+      <div class="section-desc">Biến đồ án thành điểm nhấn "chuẩn Senior" trong CV</div>
+    </div>
+  </div>
+
+  <div class="callout c-violet" style="background:rgba(167,139,250,.04);border-color:rgba(167,139,250,.2)">
+    <div class="callout-title" style="color:var(--violet)">🎯 Tóm tắt Roadmap theo tuần</div>
+    <p>
+      <strong>Tháng 1:</strong> [RAGAS eval] → [Math Formula feature] → Dự án 1 hoàn chỉnh<br>
+      <strong>Tháng 2:</strong> [Fine-tune embedding] → [Plug vào RAG] → Dự án 2 hoàn chỉnh<br>
+      <strong>Tháng 3:</strong> [Interview prep] → [Polish portfolio & Blog] → [Apply]
+    </p>
+  </div>
+
+  <div class="phase-wrap mt16">
+    <!-- Tháng 1 -->
+    <div class="phase">
+      <div class="phase-dot" style="color:var(--cyan);border-color:var(--cyan)">M1</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <div class="phase-title">Tháng 1: Lấp gap kỹ thuật + Nâng dự án hiện tại</div>
+          <div class="phase-week">Tuần 1–4</div>
+        </div>
+        <ul class="phase-list">
+          <li><strong>RAGAS Evaluation:</strong> Điểm yếu lộ rõ nhất khi phỏng vấn. Tích hợp đo lường Faithfulness, Relevancy, Precision trên test set 50 câu. Báo cáo bằng biểu đồ để có số liệu thật.</li>
+          <li><strong>Math Formula OCR:</strong> User chụp ảnh bài toán viết tay → OCR ra LaTeX → Embed. Tính năng ấn tượng với EdTech. Làm demo video 2 phút.</li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- Tháng 2 -->
+    <div class="phase">
+      <div class="phase-dot" style="color:var(--emerald);border-color:var(--emerald)">M2</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <div class="phase-title">Tháng 2: Dự án thứ 2 — Nhỏ nhưng có training loop</div>
+          <div class="phase-week">Tuần 5–8</div>
+        </div>
+        <ul class="phase-list">
+          <li><strong>Mục tiêu:</strong> Chứng minh bạn không chỉ "wrap API". Tự fine-tune model nhúng (bge-m3 / Vietnamese-SBERT) bằng dữ liệu tiếng Việt.</li>
+          <li><strong>Kiến thức sâu:</strong> Contrastive loss, InfoNCE, negative mining. Đo so sánh recall@5.</li>
+          <li><strong>Integration:</strong> Cắm thẳng model tự train vào RAG Pipeline của tháng 1 → kết nối hai dự án thành một workflow cực xịn.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tháng 3 -->
+    <div class="phase">
+      <div class="phase-dot" style="color:var(--amber);border-color:var(--amber)">M3</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <div class="phase-title">Tháng 3: Prep Interview & Portfolio Polish</div>
+          <div class="phase-week">Tuần 9–12</div>
+        </div>
+        <ul class="phase-list">
+          <li><strong>Câu hỏi kỹ thuật LLM/RAG:</strong> Tại sao cosine similarity? Tại sao reranker? HyDE? Attention mechanism? Nhiệt độ? System design 1000 users.</li>
+          <li><strong>Viết Blog & Portfolio:</strong> Viết 1 bài blog (VD trên Viblo/LinkedIn) về "Tại sao RAG cần reranker". Cập nhật README có benchmark số liệu và architecture diagram.</li>
+          <li><strong>Apply sớm từ Tuần 10</strong>, không chờ hoàn hảo mới apply.</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 

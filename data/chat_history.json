@@ -1,0 +1,15 @@
+{
+  "8ab9c6ed-d82c-44de-8899-1335aeeff719": {
+    "updated_at": "2026-06-08T10:16:03.470642",
+    "messages": [
+      {
+        "role": "user",
+        "content": "XGBoost"
+      },
+      {
+        "role": "assistant",
+        "content": "XGBoost là một thư viện học máy mã nguồn mở, được sử dụng rộng rãi nhờ cách triển khai tối ưu hóa và mở rộng của thuật toán gradient boosting cho các tác vụ phân loại, hồi quy và xếp hạng. Thuật toán này nổi tiếng về tốc độ, độ chính xác và khả năng xử lý các tập dữ liệu lớn thông qua xử lý song song và phân tán.\n\nVề cơ chế hoạt động, XGBoost cải tiến từ Gradient Boosting bằng cách kết hợp nhiều kỹ thuật để tối ưu hóa hiệu năng, bao gồm:\n- **Regularization (Chỉnh quy):** Sử dụng L1 để chọn lọc đặc trưng, L2 để giảm ảnh hưởng từ các trọng số lớn và kiểm soát độ phức tạp của cây (Tree Complexity).\n- **Xử lý giá trị thiếu (Missing Values):** Có cơ chế tự động xử lý các giá trị null.\n- **Tối ưu hóa phần cứng (Hardware Optimization):** Bao gồm xây dựng cây song song, nhận thức bộ nhớ đệm (Cache Awareness), tính toán ngoại vi (Out-of-core Computing), huấn luyện phân tán và tăng tốc GPU.\n\nXGBoost hoạt động bằng cách xây dựng tuần tự một loạt các cây quyết định, trong đó mỗi cây mới được thêm vào sẽ cố gắng sửa lỗi của các cây trước đó để dần dần cải thiện độ chính xác tổng thể của mô hình.\n\nNguồn: AIO2025-Machine_Learning_C_B_n.pdf - Trang 232, 233, 274"
+      }
+    ]
+  }
+}

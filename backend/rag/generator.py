@@ -171,6 +171,64 @@ TRẢ LỜI:
 
     return response.content
 
+def generate_chat_answer_stream(
+    question: str,
+    retrieved_chunks: list[dict],
+    history: list[dict[str, str]],
+):
+    context_text = format_context(retrieved_chunks)
+
+    if not context_text:
+        yield _NO_CONTEXT_ANSWER
+        return
+
+    history_text = format_chat_history(history)
+
+    template = """
+Bạn là một trợ lý AI học tập thông minh.
+
+Nhiệm vụ:
+Trả lời câu hỏi hiện tại của người dùng dựa trên TÀI LIỆU CUNG CẤP và LỊCH SỬ HỘI THOẠI.
+
+Quy tắc bắt buộc:
+1. Chỉ dùng tài liệu được cung cấp để trả lời nội dung kiến thức.
+2. Có thể dùng lịch sử hội thoại để hiểu ngữ cảnh câu hỏi.
+3. Không bịa thông tin ngoài tài liệu.
+4. Nếu tài liệu không đủ thông tin, hãy nói rõ là không tìm thấy trong tài liệu.
+5. Trả lời bằng tiếng Việt.
+6. Cuối câu trả lời ghi nguồn theo định dạng: Nguồn: tên_file - Trang X.
+
+LỊCH SỬ HỘI THOẠI:
+{history}
+
+TÀI LIỆU CUNG CẤP:
+{context}
+
+CÂU HỎI HIỆN TẠI:
+{question}
+
+TRẢ LỜI:
+""".strip()
+
+    prompt = PromptTemplate(
+        input_variables=["history", "context", "question"],
+        template=template,
+    )
+
+    final_prompt = prompt.format(
+        history=history_text,
+        context=context_text,
+        question=question,
+    )
+
+    llm = get_llm()
+    print("Đang stream câu hỏi chat cho Gemini...")
+    
+    # Dùng llm.stream() để yield từng chunk văn bản
+    for chunk in llm.stream(final_prompt):
+        if chunk.content:
+            yield chunk.content
+
 
 if __name__ == "__main__":
     from backend.rag.retriever import retrieve_context

@@ -2,20 +2,29 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Node / JS
+node_modules/
+dist/
+build/
+.next/
 
 # Virtual Environments
 venv/
 env/
-.env
-
-# Environment variables
+.venv/
 .env
 .env.local
 
-# Databases
+# Databases & Vector DBs
 *.sqlite3
 *.db
 backend/chroma/
+data/chroma/
+data/qdrant/
+.qdrant/
 
 # Uploaded data & processed output
 data/raw/*
@@ -35,6 +44,4 @@ data/chroma_db/*
 .DS_Store
 Thumbs.db
 
-
 before_uninstall.txt
-

@@ -1183,4 +1183,45 @@ jobs:
 
 ---
 
-*E-Learning AI Assistant · Architecture Document · v3.0 (Production gaps documented)*
+## 9. Lộ Trình Phỏng Vấn AI Intern (3 Tháng)
+
+> Lộ trình này nhằm mục đích biến dự án này thành điểm nhấn "chuẩn Senior" trong CV để xin vị trí AI Engineer Intern / Fresher.
+
+### Tháng 1 — Lấp gap kỹ thuật + Nâng dự án hiện tại (Dự án 1 hoàn chỉnh)
+- **Tuần 1–2: Thêm Evaluation vào RAG project**
+  - Đây là điểm yếu lộ rõ nhất khi interview. Tích hợp **RAGAS** (pip install ragas) — đo faithfulness, answer relevancy, context precision.
+  - Build test set nhỏ ~50 cặp (question, ground truth answer) từ tài liệu đã upload.
+  - Vẽ kết quả thành bảng/chart rõ ràng, đưa vào README. (Khi hỏi "RAG của bạn tốt đến đâu?" — bạn có số cụ thể để trả lời).
+- **Tuần 3–4: Thêm 1 tính năng multimodal có chiều sâu (Math Formula Recognition)**
+  - User chụp ảnh bài toán viết tay → Gemini Vision OCR ra LaTeX + mô tả.
+  - Embed cả hai vào Qdrant, query bình thường. Rất ấn tượng với startup EdTech/AI.
+  - Demo video 2 phút: chụp ảnh → hỏi → AI trả lời với citation.
+
+### Tháng 2 — Dự án thứ 2: Nhỏ nhưng có training
+- **Mục tiêu:** Startup nhìn vào portfolio thấy 2 dự án khác nhau bản chất = bạn không phải người chỉ biết wrap API.
+- **Tuần 5–8: Fine-tune một embedding model tiếng Việt**
+  - Lấy `bge-m3` hoặc `Vietnamese-SBERT`, fine-tune trên dataset QA tiếng Việt (VD: UIT-ViQuAD).
+  - Có training loop thật, dùng contrastive loss / triplet loss (Google Colab Pro hoặc Kaggle).
+  - Hiểu sâu: tại sao embedding model cần contrastive learning, InfoNCE loss là gì, negative mining quan trọng thế nào.
+  - Đo đạc: so sánh model gốc vs fine-tuned bằng retrieval recall@5 trên test set.
+  - **Plug thẳng vào RAG project** (Tháng 1) để thay bge-m3 gốc → Hai dự án liên kết nhau!
+
+### Tháng 3 — Prep interview + Polish portfolio
+- **Tuần 9–10: Chuẩn bị câu hỏi kỹ thuật (Với nền tảng toán vững, bạn có lợi thế lớn)**
+  - *Về RAG:* Tại sao cosine similarity? Tại sao cần reranker? HyDE hoạt động như thế nào? Chunk size ảnh hưởng gì đến retrieval?
+  - *Về Embedding:* Contrastive learning là gì? Tại sao negative mining quan trọng? MTEB benchmark đo gì?
+  - *Về LLM:* Attention mechanism ở mức trực giác, temperature vs top-p, context window trade-off, tại sao fine-tuning đắt hơn RAG?
+  - *System design:* Thiết kế chatbot cho 1000 concurrent users (câu hỏi startup rất hay hỏi, bạn đã có kinh nghiệm từ dự án).
+  - **Apply sớm từ tuần 10**, đừng đợi "hoàn chỉnh" mới apply.
+- **Tuần 11–12: Portfolio & Viết Blog**
+  - GitHub README của 2 dự án phải có: architecture diagram, benchmark numbers, demo GIF/video.
+  - Viết 1 bài blog ngắn (trên Vietnam AI community, LinkedIn, hoặc Viblo) về một thứ bạn học được — ví dụ "Tại sao RAG của tôi cần reranker và kết quả thay đổi thế nào". (Startup cực thích người có khả năng communicate kỹ thuật).
+
+### 📌 Tóm tắt Roadmap theo tuần
+- **Tháng 1:** `[RAGAS eval]` → `[Math Formula feature]` → Dự án 1 hoàn chỉnh
+- **Tháng 2:** `[Fine-tune embedding]` → `[Plug vào RAG]` → Dự án 2 hoàn chỉnh
+- **Tháng 3:** `[Interview prep]` → `[Polish portfolio & Viết Blog]` → `[Apply]`
+
+---
+
+*E-Learning AI Assistant · Architecture Document · v3.0 (Production gaps & Roadmap documented)*
