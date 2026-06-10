@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import { Sparkles, Download, CheckCircle, ChevronDown, Presentation, Layout as LayoutIcon, FileText, Loader2, ArrowRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { Sparkles, Download, CheckCircle, Presentation, Layout as LayoutIcon, Loader2, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { slideService } from "../services/slideService";
 import { documentService, type DocumentInfo } from "../services/documentService";
+import { settingsService } from "../services/settingsService";
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -13,15 +15,18 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
 export function CreateLecture() {
-  const [topic, setTopic] = useState("");
+  const location = useLocation();
+  const routeState = location.state as { docId?: string; topic?: string } | null;
+  const [topic, setTopic] = useState(routeState?.topic || "");
   const [nSlides, setNSlides] = useState(7);
   const [theme, setTheme] = useState("academic");
+  const [lectureMode, setLectureMode] = useState<"academic" | "summary">("academic");
   
   const [isLoading, setIsLoading] = useState(false);
   const [generatedSlide, setGeneratedSlide] = useState<{
@@ -34,17 +39,30 @@ export function CreateLecture() {
   const [documents, setDocuments] = useState<DocumentInfo[]>([]);
   const [selectedDocId, setSelectedDocId] = useState<string>("");
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchDocs = async () => {
       try {
-        const res = await documentService.getDocuments();
+        const [res, savedSettings] = await Promise.all([
+          documentService.getDocuments(),
+          settingsService.getSettings(),
+        ]);
         setDocuments(res.documents);
+        setTheme(savedSettings.default_slide_theme);
       } catch (err) {
         console.error("Lỗi khi tải danh sách tài liệu", err);
       }
     };
     fetchDocs();
   }, []);
+
+  useEffect(() => {
+    if (routeState?.docId) {
+      setSelectedDocId(routeState.docId);
+    }
+    if (routeState?.topic) {
+      setTopic(routeState.topic);
+    }
+  }, [routeState?.docId, routeState?.topic]);
 
   const themes = [
     { name: "academic", label: "The Professor", desc: "Cổ điển & Tinh giản", img: "" },
@@ -59,11 +77,14 @@ export function CreateLecture() {
     setGeneratedSlide(null);
     
     try {
+      const requestedTopic = lectureMode === "summary" ? `Tom tat ${topic}` : topic;
       const res = await slideService.generateSlides({
-        topic,
-        n_slides: nSlides,
+        topic: requestedTopic,
+        n_slides: lectureMode === "summary" ? Math.min(nSlides, 6) : nSlides,
         template_name: theme,
         language: "vi",
+        difficulty: lectureMode === "summary" ? "basic" : "standard",
+        include_speaker_notes: lectureMode === "academic",
         doc_id: selectedDocId || undefined
       });
       
@@ -145,10 +166,26 @@ export function CreateLecture() {
                   Loại nội dung
                </label>
                <div className="flex gap-2">
-                  <button className="flex-1 py-3 bg-gradient-to-br from-[#9E2016] to-[#C94B3E] text-white text-xs font-bold rounded-xl shadow-md">
+                  <button
+                    type="button"
+                    onClick={() => setLectureMode("academic")}
+                    className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all ${
+                      lectureMode === "academic"
+                        ? "bg-gradient-to-br from-[#9E2016] to-[#C94B3E] text-white shadow-md"
+                        : "bg-white text-[#59413D] border border-[#E1BFB9]/50 hover:border-[#9E2016]/50"
+                    }`}
+                  >
                     Học Thuật
                   </button>
-                  <button className="flex-1 py-3 bg-white text-[#59413D] text-xs font-bold rounded-xl border border-[#E1BFB9]/50 hover:border-[#9E2016]/50 transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => setLectureMode("summary")}
+                    className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all ${
+                      lectureMode === "summary"
+                        ? "bg-gradient-to-br from-[#9E2016] to-[#C94B3E] text-white shadow-md"
+                        : "bg-white text-[#59413D] border border-[#E1BFB9]/50 hover:border-[#9E2016]/50"
+                    }`}
+                  >
                     Tóm Tắt
                   </button>
                </div>

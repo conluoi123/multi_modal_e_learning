@@ -3,7 +3,13 @@ import { apiClient } from './client';
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
-  citations?: string[];
+  citations?: Citation[];
+}
+
+export interface Citation {
+  source: string;
+  page: string;
+  doc_id?: string;
 }
 
 export interface ChatRequest {
@@ -15,7 +21,7 @@ export interface ChatRequest {
 export interface ChatResponse {
   conversation_id: string;
   answer: string;
-  citations: string[];
+  citations: Citation[];
   history: ChatMessage[];
 }
 
@@ -23,7 +29,7 @@ export interface VoiceChatResponse {
   transcribed_text: string;
   conversation_id: string;
   answer: string;
-  citations: string[];
+  citations: Citation[];
   history: ChatMessage[];
 }
 
@@ -76,7 +82,7 @@ export const chatService = {
   streamMessage: async (
     request: ChatRequest,
     onChunk: (text: string) => void,
-    onEnd: (citations: string[], conversationId: string) => void,
+    onEnd: (citations: Citation[], conversationId: string) => void,
     onError: (err: any) => void
   ): Promise<void> => {
     try {

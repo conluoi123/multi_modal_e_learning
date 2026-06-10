@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Check, X, CheckCircle2, Loader2, Play, BrainCircuit, Trophy, RefreshCw, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { Check, X, CheckCircle2, Loader2, Play, BrainCircuit, Trophy, RefreshCw } from "lucide-react";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import { quizService, type QuizQuestion } from "../services/quizService";
 import { documentService, type DocumentInfo } from "../services/documentService";
+import { settingsService } from "../services/settingsService";
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -12,13 +14,15 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
 export function Quiz() {
-  const [topic, setTopic] = useState("");
+  const location = useLocation();
+  const routeState = location.state as { docId?: string; topic?: string } | null;
+  const [topic, setTopic] = useState(routeState?.topic || "");
   const [difficulty, setDifficulty] = useState<'basic' | 'standard' | 'advanced'>("standard");
   const [nQuestions, setNQuestions] = useState(3);
   
@@ -34,14 +38,28 @@ export function Quiz() {
   useEffect(() => {
     const fetchDocs = async () => {
       try {
-        const res = await documentService.getDocuments();
+        const [res, savedSettings] = await Promise.all([
+          documentService.getDocuments(),
+          settingsService.getSettings(),
+        ]);
         setDocuments(res.documents);
+        setDifficulty(savedSettings.default_quiz_difficulty);
+        setNQuestions(savedSettings.default_quiz_count);
       } catch (err) {
         console.error("Lỗi khi tải danh sách tài liệu", err);
       }
     };
     fetchDocs();
   }, []);
+
+  useEffect(() => {
+    if (routeState?.docId) {
+      setSelectedDocId(routeState.docId);
+    }
+    if (routeState?.topic) {
+      setTopic(routeState.topic);
+    }
+  }, [routeState?.docId, routeState?.topic]);
 
   const handleGenerate = async () => {
     if (!topic) return alert("Vui lòng nhập chủ đề!");

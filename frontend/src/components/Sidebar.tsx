@@ -1,10 +1,18 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { MessageSquare, FileText, CheckSquare, Presentation, Home, LayoutDashboard, BrainCircuit, Settings } from 'lucide-react';
+import { MessageSquare, FileText, CheckSquare, Presentation, LayoutDashboard, BrainCircuit, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { settingsService, type UserSettings } from '../services/settingsService';
 
 export function Sidebar() {
   const location = useLocation();
+  const [settings, setSettings] = useState<UserSettings | null>(null);
+
+  useEffect(() => {
+    settingsService.getSettings()
+      .then(setSettings)
+      .catch((error) => console.error("Failed to load sidebar settings", error));
+  }, []);
   
   if (location.pathname === '/') return null;
 
@@ -14,6 +22,7 @@ export function Sidebar() {
     { to: '/documents', icon: FileText, label: 'Tài liệu' },
     { to: '/quiz', icon: CheckSquare, label: 'Luyện tập' },
     { to: '/slides', icon: Presentation, label: 'Tạo Slide' },
+    { to: '/settings', icon: Settings, label: 'Cài đặt' },
   ];
 
   return (
@@ -68,14 +77,26 @@ export function Sidebar() {
             <span className="text-[10px] font-['JetBrains_Mono',monospace] text-[#59413D] font-bold uppercase tracking-wider">AI Online</span>
           </div>
         </div>
-        <div className="flex items-center gap-3 p-3 bg-white rounded-2xl border border-[#E1BFB9]/50 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" className="w-10 h-10 rounded-full bg-[#FCEEEB]" />
+        <Link
+          to="/settings"
+          className={`flex items-center gap-3 p-3 bg-white rounded-2xl border shadow-sm hover:shadow-md transition-all cursor-pointer group ${
+            location.pathname === "/settings"
+              ? "border-[#9E2016]/50 ring-2 ring-[#9E2016]/10"
+              : "border-[#E1BFB9]/50"
+          }`}
+          aria-label="Mở trang cài đặt người dùng"
+        >
+          <img
+            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(settings?.avatar_seed || "Felix")}`}
+            alt="User"
+            className="w-10 h-10 rounded-full bg-[#FCEEEB]"
+          />
           <div className="flex-1 overflow-hidden">
-            <h4 className="text-sm font-bold text-[#261816] truncate font-['DM_Sans',sans-serif]">Học Viên</h4>
-            <p className="text-xs text-[#59413D] opacity-70 truncate font-['DM_Sans',sans-serif]">Premium Plan</p>
+            <h4 className="text-sm font-bold text-[#261816] truncate font-['DM_Sans',sans-serif]">{settings?.display_name || "Hoc Vien"}</h4>
+            <p className="text-xs text-[#59413D] opacity-70 truncate font-['DM_Sans',sans-serif]">{settings?.role_label || "Student"}</p>
           </div>
           <Settings size={16} className="text-[#59413D] opacity-40 group-hover:opacity-100 transition-opacity group-hover:rotate-90 duration-300" />
-        </div>
+        </Link>
       </div>
     </aside>
   );

@@ -31,6 +31,13 @@ class DocumentsResponse(BaseModel):
     documents: List[DocumentInfo]
 
 
+class DocumentDeleteResponse(BaseModel):
+    status: str
+    doc_id: str
+    deleted_chunks: int
+    deleted_files: List[str]
+
+
 class SlideContent(BaseModelV1):
     title: str
     bullet_points: List[str]
@@ -121,3 +128,16 @@ class ChatHistoryResponse(BaseModel):
     conversation_id: str
     history: List[ChatMessage]
     message_count: int
+
+
+class UserSettings(BaseModel):
+    display_name: str = Field(default="Hoc Vien", min_length=1, max_length=80)
+    avatar_seed: str = Field(default="Felix", min_length=1, max_length=80)
+    role_label: str = Field(default="Student", min_length=1, max_length=80)
+    api_base_url: str = Field(default="/api/v1", min_length=1, max_length=200)
+    default_document_scope: Literal["all", "latest"] = "all"
+    default_slide_theme: Literal["academic", "corporate", "minimal"] = "academic"
+    default_quiz_difficulty: Literal["basic", "standard", "advanced"] = "standard"
+    default_quiz_count: int = Field(default=5, ge=1, le=20)
+    save_chat_history: bool = True
+    auto_select_latest_document: bool = False

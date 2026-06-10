@@ -6,6 +6,7 @@ from datetime import datetime
 
 MAX_MESSAGES_PER_CONVERSATION = 12
 DATA_FILE = os.path.join("data", "chat_history.json")
+SETTINGS_FILE = os.path.join("data", "settings.json")
 
 # Structure: { conv_id: { "updated_at": timestamp, "messages": [...] } }
 _conversations: dict = {}
@@ -20,11 +21,25 @@ def load_history():
             _conversations = {}
 
 def save_history():
+    if not should_persist_history():
+        return
+
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(_conversations, f, ensure_ascii=False, indent=2)
 
 load_history()
+
+def should_persist_history() -> bool:
+    if not os.path.exists(SETTINGS_FILE):
+        return True
+
+    try:
+        with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+            settings = json.load(f)
+        return bool(settings.get("save_chat_history", True))
+    except Exception:
+        return True
 
 def create_conversation_id() -> str:
     return str(uuid4())

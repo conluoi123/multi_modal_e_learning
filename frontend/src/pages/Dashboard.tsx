@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { FileText, MessageSquare, Clock, MoreVertical, Star, TrendingUp, BookOpen, BrainCircuit } from "lucide-react";
-import { motion } from "framer-motion";
-import { ImageWithFallback } from "../components/figma/ImageWithFallback";
+import { FileText, MessageSquare, Clock, TrendingUp, BookOpen, BrainCircuit } from "lucide-react";
+import { motion, type Variants } from "framer-motion";
 import { documentService, type DocumentInfo } from "../services/documentService";
 import { chatService, type ConversationInfo } from "../services/chatService";
 
@@ -17,7 +16,7 @@ const chartData = [
   { day: "SUN", current: 50, last: 30 },
 ];
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -25,12 +24,13 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [recentDocs, setRecentDocs] = useState<DocumentInfo[]>([]);
   const [recentChats, setRecentChats] = useState<ConversationInfo[]>([]);
@@ -52,6 +52,22 @@ export function Dashboard() {
     };
     fetchData();
   }, []);
+
+  const openConversation = (conversationId: string) => {
+    navigate("/chat", {
+      state: {
+        conversationId,
+      },
+    });
+  };
+
+  const openDocumentChat = (docId: string) => {
+    navigate("/chat", {
+      state: {
+        docId,
+      },
+    });
+  };
 
   if (isLoading) {
     return (
@@ -160,14 +176,19 @@ export function Dashboard() {
           <motion.div variants={itemVariants} className="glass-panel rounded-3xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-[#261816] font-['Playfair_Display',serif] italic text-2xl font-bold">Hoạt động gần đây</h2>
-              <button className="text-[#9E2016] text-sm font-bold hover:underline">Xem tất cả</button>
+              <Link to="/chat" className="text-[#9E2016] text-sm font-bold hover:underline">Xem tất cả</Link>
             </div>
             <div className="space-y-4">
               {recentChats.length === 0 ? (
                  <div className="text-center text-[#59413D] opacity-60 mt-10 text-sm">Chưa có hoạt động nào</div>
-              ) : recentChats.slice(0, 4).map((chat, i) => (
-                <Link to="/chat" key={chat.conversation_id}>
-                  <motion.div whileHover={{ scale: 1.01 }} className="flex items-center justify-between p-4 bg-white/50 rounded-2xl border border-[#E1BFB9]/30 hover:border-[#E1BFB9] transition-all cursor-pointer mb-2">
+              ) : recentChats.slice(0, 4).map((chat) => (
+                <motion.button
+                  key={chat.conversation_id}
+                  type="button"
+                  whileHover={{ scale: 1.01 }}
+                  onClick={() => openConversation(chat.conversation_id)}
+                  className="w-full flex items-center justify-between p-4 bg-white/50 rounded-2xl border border-[#E1BFB9]/30 hover:border-[#E1BFB9] transition-all cursor-pointer mb-2 text-left"
+                >
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-[#FFF8F6] flex items-center justify-center text-[#9E2016]">
                         <BrainCircuit size={18} />
@@ -180,8 +201,7 @@ export function Dashboard() {
                     <span className="px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider bg-green-100 text-green-700">
                       Hoàn thành
                     </span>
-                  </motion.div>
-                </Link>
+                </motion.button>
               ))}
             </div>
           </motion.div>
@@ -218,8 +238,13 @@ export function Dashboard() {
               <div className="space-y-4">
                  {recentDocs.length === 0 ? (
                    <div className="text-center text-[#59413D] opacity-60 mt-10 text-sm">Chưa tải tài liệu nào</div>
-                 ) : recentDocs.slice(0, 3).map((doc, i) => (
-                   <div key={doc.doc_id} className="flex gap-4 group cursor-pointer p-2 rounded-2xl hover:bg-white/60 transition-colors">
+                 ) : recentDocs.slice(0, 3).map((doc) => (
+                   <button
+                     key={doc.doc_id}
+                     type="button"
+                     onClick={() => openDocumentChat(doc.doc_id)}
+                     className="w-full flex gap-4 group cursor-pointer p-2 rounded-2xl hover:bg-white/60 transition-colors text-left"
+                   >
                       <div className="w-16 h-20 rounded-lg overflow-hidden relative shadow-sm shrink-0 bg-[#FCEEEB] flex items-center justify-center">
                          <FileText size={24} className="text-[#9E2016] opacity-50" />
                          <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
@@ -228,14 +253,14 @@ export function Dashboard() {
                          <div>
                             <h4 className="text-[#261816] font-bold text-sm group-hover:text-[#9E2016] transition-colors line-clamp-1 truncate pr-2" title={doc.filename}>{doc.filename}</h4>
                             <p className="text-[10px] text-[#59413D] opacity-60 font-['JetBrains_Mono',monospace] mt-1 uppercase">
-                              {(doc.size / 1024 / 1024).toFixed(2)} MB • PDF
+                              {doc.chunk_count} chunks • PDF
                             </p>
                          </div>
                          <div className="w-full h-1.5 bg-[#E1BFB9]/30 rounded-full overflow-hidden">
                            <div className="h-full bg-gradient-to-r from-[#9E2016] to-[#C94B3E] rounded-full" style={{ width: '100%' }}></div>
                          </div>
                       </div>
-                   </div>
+                   </button>
                  ))}
               </div>
            </motion.div>
