@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Search, Book, Sparkles, Paperclip, ImageIcon, Mic, X, Loader2, PlayCircle, Bookmark, Copy, ThumbsUp, BrainCircuit, FileText, RefreshCw, Menu, MessageSquare, Plus } from "lucide-react";
+import { Send, Book, Sparkles, Paperclip, Mic, X, Loader2, Copy, ThumbsUp, BrainCircuit, FileText, Menu, MessageSquare, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { chatService, type ChatMessage, type ConversationInfo } from "../services/chatService";
 import { documentService, type DocumentInfo } from "../services/documentService";
@@ -12,11 +13,15 @@ const SUGGESTED_PROMPTS = [
 ];
 
 export function Chat() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const routeState = location.state as { conversationId?: string; docId?: string } | null;
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingDocument, setIsUploadingDocument] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   
   const [documents, setDocuments] = useState<DocumentInfo[]>([]);
@@ -24,6 +29,8 @@ export function Chat() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationInfo[]>([]);
+  const [copiedMessageIndex, setCopiedMessageIndex] = useState<number | null>(null);
+  const [likedMessages, setLikedMessages] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     const fetchDocs = async () => {
@@ -36,8 +43,29 @@ export function Chat() {
     };
     fetchDocs();
   }, []);
+
+  useEffect(() => {
+    if (routeState?.docId) {
+      setSelectedDocId(routeState.docId);
+    }
+  }, [routeState?.docId]);
+
+  useEffect(() => {
+    if (!routeState?.conversationId) return;
+
+    setIsLoading(true);
+    chatService.getHistory(routeState.conversationId)
+      .then(res => {
+        setConversationId(res.conversation_id);
+        setMessages(res.history);
+        localStorage.setItem("chat_conversation_id", res.conversation_id);
+      })
+      .catch(err => console.error("Failed to load routed conversation", err))
+      .finally(() => setIsLoading(false));
+  }, [routeState?.conversationId]);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
@@ -95,6 +123,84 @@ export function Chat() {
     setConversationId(null);
     localStorage.removeItem("chat_conversation_id");
     setIsDrawerOpen(false);
+  };
+
+  const getSelectedDocument = () => {
+    return documents.find(doc => doc.doc_id === selectedDocId);
+  };
+
+  const getSuggestedTopic = (messageContent?: string) => {
+    const selectedDocument = getSelectedDocument();
+    if (selectedDocument) {
+      return selectedDocument.filename.replace(/\.[^/.]+$/, "").replace(/[_-]+/g, " ").trim();
+    }
+
+    const lastUserMessage = [...messages].reverse().find(message => message.role === "user");
+    return (lastUserMessage?.content || messageContent || "Noi dung chat").slice(0, 120);
+  };
+
+  const handleDocumentUpload = async (file: File) => {
+    if (!file) return;
+
+    try {
+      setIsUploadingDocument(true);
+      const uploaded = await documentService.uploadDocument(file);
+      const refreshed = await documentService.getDocuments();
+      setDocuments(refreshed.documents);
+      setSelectedDocId(uploaded.doc_id);
+      setInput(`Hay tom tat tai lieu ${uploaded.filename}`);
+    } catch (error) {
+      console.error("Failed to upload document from chat", error);
+      alert("Tai lieu upload that bai. Backend hien uu tien file PDF.");
+    } finally {
+      setIsUploadingDocument(false);
+      if (documentInputRef.current) {
+        documentInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleDocumentInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleDocumentUpload(file);
+    }
+  };
+
+  const copyMessage = async (content: string, messageIndex: number) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedMessageIndex(messageIndex);
+      window.setTimeout(() => setCopiedMessageIndex(null), 1500);
+    } catch (error) {
+      console.error("Failed to copy message", error);
+      alert("Khong copy duoc noi dung.");
+    }
+  };
+
+  const toggleLikeMessage = (messageIndex: number) => {
+    setLikedMessages(prev => ({
+      ...prev,
+      [messageIndex]: !prev[messageIndex],
+    }));
+  };
+
+  const openQuizFromMessage = (messageContent: string) => {
+    navigate("/quiz", {
+      state: {
+        docId: selectedDocId || undefined,
+        topic: getSuggestedTopic(messageContent),
+      },
+    });
+  };
+
+  const openSlidesFromMessage = (messageContent: string) => {
+    navigate("/slides", {
+      state: {
+        docId: selectedDocId || undefined,
+        topic: getSuggestedTopic(messageContent),
+      },
+    });
   };
 
   const startRecording = async () => {
@@ -308,7 +414,7 @@ export function Chat() {
                        {msg.citations && msg.citations.length > 0 && (
                          <div className="flex gap-2 flex-wrap">
                            {msg.citations.map((cite, i) => {
-                             const text = typeof cite === 'string' ? cite : (cite?.source || JSON.stringify(cite));
+                             const text = [cite.source, cite.page ? `Trang ${cite.page}` : ""].filter(Boolean).join(" - ");
                              return (
                                <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#E1BFB9] rounded-lg text-xs font-['JetBrains_Mono',monospace] text-[#9E2016] hover:bg-[#FCEEEB] cursor-pointer transition-colors shadow-sm">
                                  <FileText size={12} />
@@ -321,17 +427,34 @@ export function Chat() {
 
                        {/* Action buttons */}
                        <div className="flex gap-2">
-                         <button className="p-2 hover:bg-[#E1BFB9]/20 rounded-lg text-[#59413D] opacity-60 hover:opacity-100 transition-all">
+                         <button
+                           onClick={() => copyMessage(msg.content, idx)}
+                           className="p-2 hover:bg-[#E1BFB9]/20 rounded-lg text-[#59413D] opacity-60 hover:opacity-100 transition-all"
+                           title="Copy"
+                         >
                            <Copy size={16} />
                          </button>
-                         <button className="p-2 hover:bg-[#E1BFB9]/20 rounded-lg text-[#59413D] opacity-60 hover:opacity-100 transition-all">
-                           <ThumbsUp size={16} />
+                         {copiedMessageIndex === idx && (
+                           <span className="px-2 py-1.5 text-[10px] font-bold text-green-700 bg-green-100 rounded-lg">
+                             Copied
+                           </span>
+                         )}
+                         <button
+                           onClick={() => toggleLikeMessage(idx)}
+                           className={`p-2 hover:bg-[#E1BFB9]/20 rounded-lg transition-all ${
+                             likedMessages[idx]
+                               ? "text-[#9E2016] opacity-100 bg-[#FCEEEB]"
+                               : "text-[#59413D] opacity-60 hover:opacity-100"
+                           }`}
+                           title="Danh dau cau tra loi huu ich"
+                         >
+                           <ThumbsUp size={16} className={likedMessages[idx] ? "fill-[#9E2016]/20" : ""} />
                          </button>
                          <div className="h-6 w-px bg-[#E1BFB9]/50 mx-1 my-auto"></div>
-                         <button onClick={() => setInput("Tạo quiz 5 câu từ nội dung trên")} className="px-3 py-1.5 hover:bg-[#E1BFB9]/20 rounded-lg text-xs font-bold text-[#59413D] hover:text-[#9E2016] transition-all">
+                         <button onClick={() => openQuizFromMessage(msg.content)} className="px-3 py-1.5 hover:bg-[#E1BFB9]/20 rounded-lg text-xs font-bold text-[#59413D] hover:text-[#9E2016] transition-all">
                            Tạo Quiz
                          </button>
-                         <button onClick={() => setInput("Sinh slide bài giảng phần này")} className="px-3 py-1.5 hover:bg-[#E1BFB9]/20 rounded-lg text-xs font-bold text-[#59413D] hover:text-[#9E2016] transition-all">
+                         <button onClick={() => openSlidesFromMessage(msg.content)} className="px-3 py-1.5 hover:bg-[#E1BFB9]/20 rounded-lg text-xs font-bold text-[#59413D] hover:text-[#9E2016] transition-all">
                            Tạo Slide
                          </button>
                        </div>
@@ -365,8 +488,24 @@ export function Chat() {
       <div className="absolute bottom-0 w-full bg-gradient-to-t from-[#FAFAF9] via-[#FAFAF9] to-transparent pt-20 pb-8 px-4 z-20">
          <div className="max-w-4xl mx-auto">
             <div className="glass-panel rounded-[2rem] p-2 flex items-end gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.05)] border-[#E1BFB9]/50 focus-within:border-[#9E2016]/30 focus-within:shadow-[0_10px_40px_rgba(158,32,22,0.1)] transition-all bg-white/90">
-               <button className="p-4 text-[#59413D] opacity-50 hover:opacity-100 hover:text-[#9E2016] transition-colors rounded-full hover:bg-[#FCEEEB]">
-                 <Paperclip size={20} />
+               <input
+                 ref={documentInputRef}
+                 type="file"
+                 accept=".pdf"
+                 className="hidden"
+                 onChange={handleDocumentInputChange}
+               />
+               <button
+                 onClick={() => documentInputRef.current?.click()}
+                 disabled={isUploadingDocument || isLoading}
+                 className="p-4 text-[#59413D] opacity-50 hover:opacity-100 hover:text-[#9E2016] transition-colors rounded-full hover:bg-[#FCEEEB] disabled:cursor-not-allowed disabled:opacity-40"
+                 title="Upload PDF"
+               >
+                 {isUploadingDocument ? (
+                   <Loader2 size={20} className="animate-spin" />
+                 ) : (
+                   <Paperclip size={20} />
+                 )}
                </button>
                <div className="flex-1 flex flex-col">
                  {/* Document Selector */}

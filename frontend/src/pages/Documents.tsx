@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Upload, FileText, File, Loader2, Search, MoreVertical, BrainCircuit, CheckSquare, Presentation, Trash2, Eye, PlayCircle, FolderOpen } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Upload, FileText, Loader2, Search, BrainCircuit, CheckSquare, Presentation, Trash2, FolderOpen } from "lucide-react";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { documentService, type DocumentInfo } from "../services/documentService";
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -11,18 +12,20 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
 export function Documents() {
+  const navigate = useNavigate();
   const [documents, setDocuments] = useState<DocumentInfo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchDocuments = async () => {
@@ -97,6 +100,52 @@ export function Documents() {
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file) processFile(file);
+  };
+
+  const getTopicFromFilename = (filename: string) => {
+    return filename.replace(/\.[^/.]+$/, "").replace(/[_-]+/g, " ").trim();
+  };
+
+  const openChatForDocument = (doc: DocumentInfo) => {
+    navigate("/chat", {
+      state: {
+        docId: doc.doc_id,
+      },
+    });
+  };
+
+  const openQuizForDocument = (doc: DocumentInfo) => {
+    navigate("/quiz", {
+      state: {
+        docId: doc.doc_id,
+        topic: getTopicFromFilename(doc.filename),
+      },
+    });
+  };
+
+  const openSlidesForDocument = (doc: DocumentInfo) => {
+    navigate("/slides", {
+      state: {
+        docId: doc.doc_id,
+        topic: getTopicFromFilename(doc.filename),
+      },
+    });
+  };
+
+  const deleteDocument = async (doc: DocumentInfo) => {
+    const confirmed = window.confirm(`Xoa tai lieu "${doc.filename}" va cac vector da ingest?`);
+    if (!confirmed) return;
+
+    try {
+      setDeletingDocId(doc.doc_id);
+      await documentService.deleteDocument(doc.doc_id);
+      await fetchDocuments();
+    } catch (error) {
+      console.error("Loi khi xoa tai lieu:", error);
+      alert("Xoa tai lieu that bai. Vui long thu lai.");
+    } finally {
+      setDeletingDocId(null);
+    }
   };
 
   const filteredDocs = documents.filter(doc => doc.filename.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -272,15 +321,39 @@ export function Documents() {
                         </td>
                         <td className="py-4 px-4 text-right">
                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button className="p-2 bg-white rounded-lg border border-[#E1BFB9]/50 text-[#59413D] hover:text-[#9E2016] hover:border-[#9E2016]/50 transition-all shadow-sm tooltip-trigger" title="Hỏi AI">
+                              <button
+                                onClick={() => openChatForDocument(doc)}
+                                className="p-2 bg-white rounded-lg border border-[#E1BFB9]/50 text-[#59413D] hover:text-[#9E2016] hover:border-[#9E2016]/50 transition-all shadow-sm tooltip-trigger"
+                                title="Hỏi AI"
+                              >
                                 <BrainCircuit size={16} />
                               </button>
-                              <button className="p-2 bg-white rounded-lg border border-[#E1BFB9]/50 text-[#59413D] hover:text-[#9E2016] hover:border-[#9E2016]/50 transition-all shadow-sm tooltip-trigger" title="Tạo Quiz">
+                              <button
+                                onClick={() => openQuizForDocument(doc)}
+                                className="p-2 bg-white rounded-lg border border-[#E1BFB9]/50 text-[#59413D] hover:text-[#9E2016] hover:border-[#9E2016]/50 transition-all shadow-sm tooltip-trigger"
+                                title="Tạo Quiz"
+                              >
                                 <CheckSquare size={16} />
                               </button>
+                              <button
+                                onClick={() => openSlidesForDocument(doc)}
+                                className="p-2 bg-white rounded-lg border border-[#E1BFB9]/50 text-[#59413D] hover:text-[#9E2016] hover:border-[#9E2016]/50 transition-all shadow-sm tooltip-trigger"
+                                title="Tạo Slide"
+                              >
+                                <Presentation size={16} />
+                              </button>
                               <div className="w-px h-6 bg-[#E1BFB9]/50 mx-1" />
-                              <button className="p-2 bg-white rounded-lg border border-[#E1BFB9]/50 text-[#59413D] hover:text-red-600 hover:border-red-600/50 transition-all shadow-sm tooltip-trigger" title="Xóa">
-                                <Trash2 size={16} />
+                              <button
+                                onClick={() => deleteDocument(doc)}
+                                disabled={deletingDocId === doc.doc_id}
+                                className="p-2 bg-white rounded-lg border border-[#E1BFB9]/50 text-[#59413D] hover:text-red-600 hover:border-red-600/50 transition-all shadow-sm tooltip-trigger disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Xóa"
+                              >
+                                {deletingDocId === doc.doc_id ? (
+                                  <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                  <Trash2 size={16} />
+                                )}
                               </button>
                            </div>
                         </td>

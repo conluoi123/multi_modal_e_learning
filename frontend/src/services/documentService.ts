@@ -19,6 +19,13 @@ export interface IngestResponse {
   duplicate: boolean;
 }
 
+export interface DocumentDeleteResponse {
+  status: string;
+  doc_id: string;
+  deleted_chunks: number;
+  deleted_files: string[];
+}
+
 export const documentService = {
   getDocuments: async (): Promise<DocumentsResponse> => {
     const response = await apiClient.get<DocumentsResponse>('/documents');
@@ -34,6 +41,11 @@ export const documentService = {
         'Content-Type': 'multipart/form-data',
       },
     });
+    return response.data;
+  },
+
+  deleteDocument: async (docId: string): Promise<DocumentDeleteResponse> => {
+    const response = await apiClient.delete<DocumentDeleteResponse>(`/documents/${docId}`);
     return response.data;
   },
 };

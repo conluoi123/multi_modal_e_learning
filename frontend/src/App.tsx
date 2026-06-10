@@ -5,6 +5,8 @@ import { Chat } from './pages/Chat';
 import { Documents } from './pages/Documents';
 import { Quiz } from './pages/Quiz';
 import { CreateLecture } from './pages/CreateLecture';
+import { Settings } from './pages/Settings';
+import { PolicyPage } from './pages/PolicyPage';
 import { Sidebar } from './components/Sidebar';
 
 function App() {
@@ -20,6 +22,10 @@ function App() {
             <Route path="/documents" element={<Documents />} />
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/slides" element={<CreateLecture />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/ethics" element={<PolicyPage />} />
+            <Route path="/citation-guide" element={<PolicyPage />} />
+            <Route path="/institutional-access" element={<PolicyPage />} />
           </Routes>
         </main>
       </div>

@@ -3,7 +3,7 @@ import { apiClient } from './client';
 export interface QuizRequest {
   topic: string;
   n_questions?: number;
-  difficulty?: 'Dễ' | 'Trung bình' | 'Khó';
+  difficulty?: 'basic' | 'standard' | 'advanced';
   doc_id?: string | null;
 }
 

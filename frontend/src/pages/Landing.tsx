@@ -1,6 +1,5 @@
-import React from "react";
-import { Link } from "react-router";
-import { ArrowRight, Star, Sparkles, BookOpen, Cpu, MessageSquare } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Star, BookOpen, Cpu, MessageSquare } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
 export function Landing() {
@@ -123,9 +122,9 @@ export function Landing() {
                <p className="text-[#59413D] text-[10px] font-['JetBrains_Mono',monospace] uppercase opacity-40">© 2024 EduMind AI. An Academic Journal Publication.</p>
             </div>
             <div className="flex flex-wrap gap-8 text-[10px] font-['JetBrains_Mono',monospace] uppercase tracking-widest text-[#59413D]">
-               <button className="hover:text-[#9E2016] transition-colors">Ethics Policy</button>
-               <button className="hover:text-[#9E2016] transition-colors">Citation Guide</button>
-               <button className="hover:text-[#9E2016] transition-colors">Institutional Access</button>
+               <Link to="/ethics" className="hover:text-[#9E2016] transition-colors">Ethics Policy</Link>
+               <Link to="/citation-guide" className="hover:text-[#9E2016] transition-colors">Citation Guide</Link>
+               <Link to="/institutional-access" className="hover:text-[#9E2016] transition-colors">Institutional Access</Link>
             </div>
          </div>
       </footer>
