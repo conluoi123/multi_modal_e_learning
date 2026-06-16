@@ -1,0 +1,106 @@
+[
+    {
+        "question": "Mục tiêu quan trọng nhất mà REIS muốn giải quyết so với các hệ thống giám sát môi trường truyền thống là gì?",
+        "ground_truth": "REIS không chỉ hiển thị dữ liệu hiện tại mà còn bổ sung lớp trí tuệ để dự báo xu hướng, phát hiện bất thường và cung cấp insight mang tính hành động hỗ trợ ra quyết định."
+    },
+
+    {
+        "question": "Hệ thống REIS thu thập dữ liệu môi trường với tần suất bao nhiêu và trên phạm vi nào?",
+        "ground_truth": "Hệ thống thu thập dữ liệu mỗi 15 phút cho toàn bộ 63 tỉnh thành tại Việt Nam."
+    },
+
+    {
+        "question": "Dual-AI Engine trong REIS gồm hai nhánh AI chính nào?",
+        "ground_truth": "Dual-AI Engine gồm một nhánh phát hiện bất thường (Anomaly Detection) và một nhánh dự báo xu hướng AQI trong 12 giờ tiếp theo."
+    },
+
+    {
+        "question": "Hai loại cảnh báo được hiển thị tách biệt trên dashboard là gì?",
+        "ground_truth": "Dashboard tách biệt cảnh báo theo ngưỡng sức khỏe AQI (AQI Warnings) và cảnh báo bất thường do AI phát hiện (AI Anomalies)."
+    },
+
+    {
+        "question": "AI Assistant sử dụng kỹ thuật nào để giảm hiện tượng hallucination?",
+        "ground_truth": "AI Assistant sử dụng RAG, giới hạn phạm vi context, kiểm tra câu trả lời bằng rule đơn giản và yêu cầu mô hình thừa nhận khi không đủ dữ liệu."
+    },
+
+
+    {
+        "question": "Tại sao REIS sử dụng Kafka giữa giai đoạn thu thập dữ liệu và lưu trữ thay vì ghi trực tiếp vào cơ sở dữ liệu?",
+        "ground_truth": "Kafka giúp tách biệt producer và consumer, giảm nguy cơ mất dữ liệu khi một thành phần gặp sự cố và tăng khả năng mở rộng của pipeline."
+    },
+
+    {
+        "question": "Tại sao hệ thống cần phân biệt giữa AQI Warnings và AI Anomalies thay vì chỉ sử dụng ngưỡng AQI?",
+        "ground_truth": "AQI Warnings phản ánh mức độ ảnh hưởng sức khỏe theo ngưỡng cố định, trong khi AI Anomalies phát hiện các hành vi bất thường trong dữ liệu mà có thể chưa vượt ngưỡng AQI."
+    },
+
+    {
+        "question": "Nếu AQI hiện tại bình thường nhưng hệ thống vẫn phát hiện anomaly thì điều đó có ý nghĩa gì?",
+        "ground_truth": "Điều đó cho thấy dữ liệu đang có hành vi bất thường so với lịch sử hoặc xu hướng kỳ vọng dù chưa vượt ngưỡng AQI nguy hiểm."
+    },
+
+    {
+        "question": "Vì sao REIS lưu trữ dữ liệu theo mô hình Bronze, Silver và Gold thay vì chỉ một bảng duy nhất?",
+        "ground_truth": "Mô hình nhiều lớp giúp lưu dữ liệu gốc để truy vết, dữ liệu đã xử lý để phân tích và dữ liệu tổng hợp để phục vụ dashboard hoặc mô hình AI."
+    },
+
+    {
+        "question": "Tại sao baseline rule-based vẫn được giữ lại dù hệ thống có các mô hình AI phức tạp hơn?",
+        "ground_truth": "Baseline đóng vai trò mốc tham chiếu để đánh giá mức cải thiện của các mô hình nâng cao như Isolation Forest, LSTM Autoencoder hoặc Prophet."
+    },
+
+
+    {
+        "question": "Một dữ liệu môi trường mới phải đi qua những lớp nào trước khi xuất hiện trên dashboard?",
+        "ground_truth": "Dữ liệu đi từ Data Source đến Ingestion Layer, sau đó qua Storage Layer, Analytics Layer, AI Layer, API Layer và cuối cùng hiển thị trên Frontend Dashboard."
+    },
+
+    {
+        "question": "AI Assistant sử dụng những nguồn thông tin nào để sinh ra khuyến nghị cho người dùng?",
+        "ground_truth": "AI Assistant tổng hợp dữ liệu hiện tại, kết quả dự báo, thông tin bất thường và ngữ cảnh được truy xuất trước khi sử dụng LLM để sinh khuyến nghị."
+    },
+
+    {
+        "question": "Trong REIS, forecasting và anomaly detection bổ trợ cho nhau như thế nào?",
+        "ground_truth": "Forecasting dự báo xu hướng tương lai còn anomaly detection phát hiện các điểm bất thường. Kết hợp hai nhánh giúp vừa dự báo vừa phát hiện các tín hiệu bất thường trong dữ liệu."
+    },
+
+    {
+        "question": "Nếu External API bị lỗi tạm thời thì hệ thống sẽ ưu tiên truy xuất dữ liệu theo thứ tự nào?",
+        "ground_truth": "Hệ thống ưu tiên Memory Cache, sau đó Redis, tiếp theo Database và chỉ gọi External API khi các lớp trước không có dữ liệu hợp lệ."
+    },
+
+
+    {
+        "question": "Tại sao AI Assistant được thiết kế dưới dạng một lớp riêng thay vì nhúng trực tiếp vào dashboard?",
+        "ground_truth": "AI Assistant đóng vai trò thông dịch dữ liệu và hỗ trợ hỏi đáp bằng ngôn ngữ tự nhiên, giúp tách biệt phần phân tích dữ liệu với phần giao tiếp người dùng."
+    },
+
+    {
+        "question": "Những thành phần nào của hệ thống được đề xuất container hóa bằng Docker?",
+        "ground_truth": "Backend, worker, frontend, database và Redis đều có thể được đóng gói bằng Docker."
+    },
+
+    {
+        "question": "Vì sao endpoint gọi LLM cần rate limiting chặt hơn các endpoint thông thường?",
+        "ground_truth": "Do các endpoint LLM có chi phí vận hành cao hơn và dễ bị lạm dụng dẫn đến tăng chi phí hoặc giảm hiệu năng hệ thống."
+    },
+
+
+    {
+        "question": "REIS hiện đã triển khai hoàn chỉnh hệ thống MLOps tự động huấn luyện lại mô hình hay chưa?",
+        "ground_truth": "Chưa. Hệ thống mới dừng ở mức thiết kế skeleton hoặc DAG và chưa triển khai hoàn chỉnh quy trình MLOps tự động."
+    },
+
+    {
+        "question": "REIS có tự huấn luyện mô hình ngôn ngữ lớn riêng để vận hành AI Assistant không?",
+        "ground_truth": "Không. AI Assistant sử dụng API của các mô hình ngôn ngữ lớn như Gemini kết hợp Prompt Engineering thay vì tự huấn luyện LLM."
+    },
+
+    {
+        "question": "Những nội dung nào được xác định là ngoài phạm vi hiện tại của đồ án REIS?",
+        "ground_truth": "Các nội dung ngoài phạm vi gồm vận hành production quy mô lớn trên cloud, production observability, authentication, MLOps tự động hoàn chỉnh và tích hợp gửi cảnh báo qua Telegram hoặc Email."
+    }
+
+]

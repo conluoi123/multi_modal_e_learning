@@ -35,3 +35,7 @@ ipykernel==6.29.4
 # test 
 pytest 
 
+# val 
+ragas 
+datasets 
+

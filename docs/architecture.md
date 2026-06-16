@@ -724,6 +724,15 @@ Test Set (50–100 Q&A chuẩn)
   Metrics report → dùng trong báo cáo đồ án
 ```
 
+### Chiến lược Tối ưu hóa & Khắc phục điểm thấp (Troubleshooting)
+
+| Chỉ số Ragas | Vấn đề | Giải pháp khắc phục |
+|---|---|---|
+| **Context Recall thấp** (< 0.6) | Hệ thống tìm kiếm (Retriever) bỏ sót tài liệu quan trọng. | Thêm **Hybrid Search (BM25)**; Áp dụng **Query Expansion**; Tăng `chunk_size` và `chunk_overlap`. |
+| **Context Precision thấp** (< 0.65) | Tìm ra nhiều tài liệu lộn xộn, tài liệu cần thiết không nằm ở Top đầu. | Sử dụng **Cross-Encoder Reranker** để xếp hạng lại; Bắt buộc user lọc Metadata (chọn file) trước khi tìm. |
+| **Faithfulness thấp** (< 0.75) | LLM bịa thông tin không có trong tài liệu (Hallucination). | Ép prompt chặt hơn (*"Chỉ dùng tài liệu được cung cấp"*); Set `temperature = 0.0`. |
+| **Answer Relevancy thấp** (< 0.7) | Trả lời lan man, không đúng trọng tâm câu hỏi. | Đổi LLM mạnh hơn (ví dụ: Llama 70B, GPT-4o); Tinh chỉnh prompt hướng dẫn LLM trả lời ngắn gọn. |
+
 ---
 
 ## 7. Tóm Tắt Nhanh — Key Design Decisions
@@ -1225,3 +1234,25 @@ jobs:
 ---
 
 *E-Learning AI Assistant · Architecture Document · v3.0 (Production gaps & Roadmap documented)*
+
+---
+
+## 9. Advanced RAG Roadmap (Intern/Fresher AI Engineer Portfolio)
+
+�? n�ng c?p h? th?ng d?t ti�u chu?n Advanced RAG v� tang di?m c?ng trong CV xin th?c t?p AI, d? �n s? tri?n khai c�c k? thu?t n�ng cao sau:
+
+### ?? K? thu?t 1: HyDE (Hypothetical Document Embedding)
+- **M?c d�ch:** Kh?c ph?c t�nh tr?ng ngu?i d�ng h?i qu� ng?n ho?c thi?u ng? c?nh (VD: 'T�ch ph�n l� g�?').
+- **Co ch?:** D�ng LLM sinh ra m?t c�u tr? l?i 'nh�p' d?a tr�n c�u h?i ng?n, sau d� d�ng ch�nh do?n nh�p d� d? t�m ki?m (Vector Search) trong t�i li?u g?c.
+- **V? tr� t�ch h?p:** \ackend/rag/retriever.py\`n
+### ?? K? thu?t 2: Semantic Chunking
+- **M?c d�ch:** Gi? tr?n v?n � nghia c?a do?n van b?n khi c?t nh? PDF.
+- **Co ch?:** Thay v� c?t c?ng 1000 k� t? (RecursiveCharacterTextSplitter), ta d�ng Semantic Text Splitter (ho?c Langchain NLTK/Spacy) d? t�ch theo c�u/� nghia ng? nghia.
+- **V? tr� t�ch h?p:** \ackend/ingestion/chunker.py\`n
+### ?? K? thu?t 3: CRAG (Corrective RAG) / Agentic Workflow
+- **M?c d�ch:** T? d?ng nh?n di?n khi t�i li?u n?i b? kh�ng c� c�u tr? l?i.
+- **Co ch?:** D�ng **LangGraph** x�y d?ng agent.
+  1. Truy xu?t t�i li?u n?i b?.
+  2. LLM t? ch?m di?m xem t�i li?u c� kh?p c�u h?i kh�ng.
+  3. N?U KH�NG: T? d?ng k�ch ho?t c�ng c? **Web Search (Tavily/DuckDuckGo)** d? t�m th�ng tin m? r?ng.
+- **V? tr� t�ch h?p:** \ackend/rag/generator.py\ v� thu m?c m?i \ackend/agents/\`n

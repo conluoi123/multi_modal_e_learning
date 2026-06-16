@@ -3,6 +3,7 @@ import shutil
 import tempfile
 
 import json
+import time
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from backend.models.schemas import ChatClearResponse, ChatRequest, ChatResponse, ChatHistoryResponse, ChatMessage, VoiceChatResponse
@@ -34,30 +35,76 @@ async def chat(request: ChatRequest):
         history=get_history(conversation_id),
     )
 
+# @router.post("/stream")
+# async def chat_stream(request: ChatRequest):
+#     conversation_id = request.conversation_id or create_conversation_id()
+#     history = get_history(conversation_id)
+
+#     chunks = retrieve_context(request.question, k=3, doc_id=request.doc_id)
+#     citations = build_citations(chunks)
+
+#     # We must save the user's message immediately
+#     add_message(conversation_id, "user", request.question)
+
+#     async def event_generator():
+#         full_answer = ""
+#         # stream text chunks
+#         for text_chunk in generate_chat_answer_stream(request.question, chunks, history):
+#             full_answer += text_chunk
+#             # Format as SSE
+#             yield f"data: {json.dumps({'type': 'chunk', 'content': text_chunk})}\n\n"
+        
+#         # Save assistant message
+#         add_message(conversation_id, "assistant", full_answer)
+
+#         # Yield final metadata (citations, etc.)
+#         yield f"data: {json.dumps({'type': 'end', 'citations': citations, 'conversation_id': conversation_id})}\n\n"
+
+#     return StreamingResponse(event_generator(), media_type="text/event-stream")
 @router.post("/stream")
 async def chat_stream(request: ChatRequest):
+    # --- BẮT ĐẦU BẤM GIỜ ---
+    start_time = time.time()
+    print(f"\n================ NHẬN CÂU HỎI MỚI ===============")
+    
     conversation_id = request.conversation_id or create_conversation_id()
     history = get_history(conversation_id)
 
+    # 1. Đo thời gian quá trình Retrieval
+    search_start = time.time()
     chunks = retrieve_context(request.question, k=3, doc_id=request.doc_id)
+    search_time = time.time() - search_start
+    print(f"[1] Thời gian Retrieval (Search + HyDE + Rerank): {search_time:.2f}s")
+    
     citations = build_citations(chunks)
-
-    # We must save the user's message immediately
     add_message(conversation_id, "user", request.question)
 
     async def event_generator():
         full_answer = ""
-        # stream text chunks
+        first_token = True
+        
+        # 2. Đo thời gian quá trình Generate (Stream)
+        gen_start = time.time()
         for text_chunk in generate_chat_answer_stream(request.question, chunks, history):
+            # Tính thời gian phản hồi chữ đầu tiên (Time To First Token)
+            if first_token:
+                first_token_time = time.time() - gen_start
+                print(f"[2] Thời gian phản hồi Token đầu tiên (TTFT): {first_token_time:.2f}s")
+                first_token = False
+                
             full_answer += text_chunk
-            # Format as SSE
             yield f"data: {json.dumps({'type': 'chunk', 'content': text_chunk})}\n\n"
         
-        # Save assistant message
+        gen_time = time.time() - gen_start
+        print(f"[3] Thời gian sinh toàn bộ câu trả lời: {gen_time:.2f}s")
+        
         add_message(conversation_id, "assistant", full_answer)
-
-        # Yield final metadata (citations, etc.)
         yield f"data: {json.dumps({'type': 'end', 'citations': citations, 'conversation_id': conversation_id})}\n\n"
+        
+        # Chốt sổ tổng thời gian
+        total_time = time.time() - start_time
+        print(f"TỔNG THỜI GIAN END-TO-END: {total_time:.2f}s")
+        print(f"==================================================\n")
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 

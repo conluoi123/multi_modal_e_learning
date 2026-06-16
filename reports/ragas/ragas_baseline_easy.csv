@@ -1,0 +1,16 @@
+﻿question,ground_truth
+REIS là viết tắt của cụm từ gì?,REIS là viết tắt của Real-time Environmental Intelligence System.
+REIS tập trung vào lĩnh vực nào?,REIS là hệ thống giám sát và phân tích dữ liệu môi trường.
+Hệ thống thu thập dữ liệu với tần suất bao nhiêu?,Hệ thống thu thập dữ liệu mỗi 15 phút.
+REIS giám sát dữ liệu trên phạm vi bao nhiêu tỉnh thành?,REIS giám sát dữ liệu trên toàn bộ 63 tỉnh thành của Việt Nam.
+Chỉ số môi trường chính được theo dõi trong đồ án là gì?,Chỉ số chính được theo dõi là AQI (Air Quality Index).
+Dual-AI Engine gồm những thành phần nào?,Dual-AI Engine gồm Anomaly Detection và Forecasting.
+Mô hình nào được sử dụng làm baseline phát hiện bất thường?,Baseline phát hiện bất thường sử dụng phương pháp Rule-based.
+REIS sử dụng hệ quản trị cơ sở dữ liệu nào để lưu trữ dữ liệu chuỗi thời gian?,REIS sử dụng TimescaleDB để lưu trữ dữ liệu chuỗi thời gian.
+Redis được sử dụng với mục đích gì?,Redis được sử dụng để cache dữ liệu và giảm số lần truy cập cơ sở dữ liệu hoặc API.
+AI Assistant sử dụng kỹ thuật nào để trả lời câu hỏi?,AI Assistant sử dụng kỹ thuật Retrieval-Augmented Generation (RAG).
+Mô hình ngôn ngữ lớn được đề xuất sử dụng trong REIS là gì?,REIS đề xuất sử dụng Gemini thông qua API.
+Dashboard hiển thị hai nhóm cảnh báo chính nào?,Dashboard hiển thị AQI Warnings và AI Anomalies.
+Forecasting trong REIS dùng để làm gì?,Forecasting được dùng để dự báo xu hướng AQI trong 12 giờ tiếp theo.
+Anomaly Detection trong REIS dùng để làm gì?,Anomaly Detection được dùng để phát hiện các điểm dữ liệu bất thường.
+Frontend Dashboard giao tiếp với hệ thống thông qua thành phần nào?,Frontend Dashboard giao tiếp với Backend API.

@@ -1,0 +1,77 @@
+[
+    {
+        "question": "REIS là viết tắt của cụm từ gì?",
+        "ground_truth": "REIS là viết tắt của Real-time Environmental Intelligence System."
+    },
+
+    {
+        "question": "REIS tập trung vào lĩnh vực nào?",
+        "ground_truth": "REIS là hệ thống giám sát và phân tích dữ liệu môi trường."
+    },
+
+    {
+        "question": "Hệ thống thu thập dữ liệu với tần suất bao nhiêu?",
+        "ground_truth": "Hệ thống thu thập dữ liệu mỗi 15 phút."
+    },
+
+    {
+        "question": "REIS giám sát dữ liệu trên phạm vi bao nhiêu tỉnh thành?",
+        "ground_truth": "REIS giám sát dữ liệu trên toàn bộ 63 tỉnh thành của Việt Nam."
+    },
+
+    {
+        "question": "Chỉ số môi trường chính được theo dõi trong đồ án là gì?",
+        "ground_truth": "Chỉ số chính được theo dõi là AQI (Air Quality Index)."
+    },
+
+    {
+        "question": "Dual-AI Engine gồm những thành phần nào?",
+        "ground_truth": "Dual-AI Engine gồm Anomaly Detection và Forecasting."
+    },
+
+    {
+        "question": "Mô hình nào được sử dụng làm baseline phát hiện bất thường?",
+        "ground_truth": "Baseline phát hiện bất thường sử dụng phương pháp Rule-based."
+    },
+
+    {
+        "question": "REIS sử dụng hệ quản trị cơ sở dữ liệu nào để lưu trữ dữ liệu chuỗi thời gian?",
+        "ground_truth": "REIS sử dụng TimescaleDB để lưu trữ dữ liệu chuỗi thời gian."
+    },
+
+    {
+        "question": "Redis được sử dụng với mục đích gì?",
+        "ground_truth": "Redis được sử dụng để cache dữ liệu và giảm số lần truy cập cơ sở dữ liệu hoặc API."
+    },
+
+    {
+        "question": "AI Assistant sử dụng kỹ thuật nào để trả lời câu hỏi?",
+        "ground_truth": "AI Assistant sử dụng kỹ thuật Retrieval-Augmented Generation (RAG)."
+    },
+
+    {
+        "question": "Mô hình ngôn ngữ lớn được đề xuất sử dụng trong REIS là gì?",
+        "ground_truth": "REIS đề xuất sử dụng Gemini thông qua API."
+    },
+
+    {
+        "question": "Dashboard hiển thị hai nhóm cảnh báo chính nào?",
+        "ground_truth": "Dashboard hiển thị AQI Warnings và AI Anomalies."
+    },
+
+    {
+        "question": "Forecasting trong REIS dùng để làm gì?",
+        "ground_truth": "Forecasting được dùng để dự báo xu hướng AQI trong 12 giờ tiếp theo."
+    },
+
+    {
+        "question": "Anomaly Detection trong REIS dùng để làm gì?",
+        "ground_truth": "Anomaly Detection được dùng để phát hiện các điểm dữ liệu bất thường."
+    },
+
+    {
+        "question": "Frontend Dashboard giao tiếp với hệ thống thông qua thành phần nào?",
+        "ground_truth": "Frontend Dashboard giao tiếp với Backend API."
+    }
+
+]
