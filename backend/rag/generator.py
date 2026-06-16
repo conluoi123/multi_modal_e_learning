@@ -141,6 +141,8 @@ Quy tắc bắt buộc:
 4. Nếu tài liệu không đủ thông tin, hãy nói rõ là không tìm thấy trong tài liệu.
 5. Trả lời bằng tiếng Việt.
 6. Cuối câu trả lời ghi nguồn theo định dạng: Nguồn: tên_file - Trang X.
+7. ĐỊNH DẠNG TOÁN HỌC: Mọi công thức Toán học, Vật lý phải được viết bằng định dạng LaTeX (bọc trong $...$ hoặc $$...$$).
+8. ĐỊNH DẠNG BIỂU ĐỒ: Nếu biểu diễn số liệu bằng biểu đồ, BẮT BUỘC trả về chuẩn JSON bọc trong thẻ markdown `recharts` (Ví dụ: ```recharts {{ "type": "LineChart", "data": [...] }} ```). Tuyệt đối không trả về raw JSON.
 
 LỊCH SỬ HỘI THOẠI:
 {history}
@@ -197,6 +199,8 @@ Quy tắc bắt buộc:
 4. Nếu tài liệu không đủ thông tin, hãy nói rõ là không tìm thấy trong tài liệu.
 5. Trả lời bằng tiếng Việt.
 6. Cuối câu trả lời ghi nguồn theo định dạng: Nguồn: tên_file - Trang X.
+7. ĐỊNH DẠNG TOÁN HỌC: Mọi công thức Toán học, Vật lý phải được viết bằng định dạng LaTeX (bọc trong $...$ hoặc $$...$$).
+8. ĐỊNH DẠNG BIỂU ĐỒ: Nếu biểu diễn số liệu bằng biểu đồ, BẮT BUỘC trả về chuẩn JSON bọc trong thẻ markdown `recharts` (Ví dụ: ```recharts {{ "type": "LineChart", "data": [...], "xKey": "day", "lineKey": "temperature" }} ```). Tuyệt đối không trả về raw JSON.
 
 LỊCH SỬ HỘI THOẠI:
 {history}

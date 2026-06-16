@@ -3,6 +3,10 @@ import { Send, Book, Sparkles, Paperclip, Mic, X, Loader2, Copy, ThumbsUp, Brain
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { chatService, type ChatMessage, type ConversationInfo } from "../services/chatService";
 import { documentService, type DocumentInfo } from "../services/documentService";
 
@@ -400,7 +404,46 @@ export function Chat() {
                   }`}>
                     {msg.role === 'assistant' ? (
                       <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-[#9E2016] prose-a:text-blue-600 prose-pre:bg-gray-100 prose-pre:p-2 prose-pre:rounded-lg prose-code:text-[#9E2016] prose-code:bg-[#FCEEEB] prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
-                        <ReactMarkdown>
+                        <ReactMarkdown
+                          remarkPlugins={[remarkMath]}
+                          rehypePlugins={[rehypeKatex]}
+                          components={{
+                            code({ node, className, children, ...props }: any) {
+                              const match = /language-(\w+)/.exec(className || "");
+                              const lang = match ? match[1] : "";
+                              
+                              if (lang === "recharts") {
+                                try {
+                                  const chartData = JSON.parse(String(children).replace(/\n$/, ""));
+                                  const ChartComponent = chartData.type === "BarChart" ? BarChart : LineChart;
+                                  const DataComponent = chartData.type === "BarChart" ? Bar : Line;
+                                  
+                                  return (
+                                    <div className="w-full h-64 my-6 p-4 bg-white rounded-2xl shadow-sm border border-[#E1BFB9]/30">
+                                      {chartData.title && <h4 className="text-center font-bold text-[#9E2016] mb-4 font-['DM_Sans']">{chartData.title}</h4>}
+                                      <ResponsiveContainer width="100%" height="80%">
+                                        <ChartComponent data={chartData.data}>
+                                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E1BFB9" opacity={0.3}/>
+                                          <XAxis dataKey={chartData.xKey} stroke="#59413D" fontSize={12} tickLine={false} axisLine={false}/>
+                                          <YAxis stroke="#59413D" fontSize={12} tickLine={false} axisLine={false}/>
+                                          <Tooltip 
+                                            contentStyle={{ borderRadius: '12px', border: '1px solid #E1BFB9', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                          />
+                                          <DataComponent type="monotone" dataKey={chartData.lineKey || "value"} stroke="#9E2016" fill="#9E2016" strokeWidth={3} radius={[4, 4, 0, 0]} />
+                                        </ChartComponent>
+                                      </ResponsiveContainer>
+                                    </div>
+                                  );
+                                } catch (e) {
+                                  console.error("Lỗi parse dữ liệu Chart:", e);
+                                  return <code className={className} {...props}>{children}</code>;
+                                }
+                              }
+                              
+                              return <code className={className} {...props}>{children}</code>;
+                            }
+                          }}
+                        >
                           {msg.content}
                         </ReactMarkdown>
                       </div>
