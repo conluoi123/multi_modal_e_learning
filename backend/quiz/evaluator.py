@@ -1,5 +1,5 @@
 import json
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from backend.rag.generator import get_llm
 from backend.models.schemas import QuizSetLLM
 

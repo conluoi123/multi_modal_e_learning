@@ -6,7 +6,7 @@
     - Ưu tiên cắt \n -> . -> space 
 '''
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter 
+from langchain_text_splitters import RecursiveCharacterTextSplitter 
 
 
 def chunk_text(pages_data: list[dict], chunk_size: int = 600, chunk_overlap: int = 120) -> list[dict]:

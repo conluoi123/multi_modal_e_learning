@@ -16,14 +16,30 @@ from backend.voice.transcriber import transcribe_audio
 router = APIRouter(prefix="/api/v1/chat", tags=["Chat"])
 
 
+from backend.agent.graph import app
+
+# Helper function to extract text from list
+def extract_text(msg):
+    if isinstance(msg, list):
+        return msg[0].get("text", str(msg)) if isinstance(msg[0], dict) else str(msg)
+    return str(msg)
+
 @router.post("", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     conversation_id = request.conversation_id or create_conversation_id()
     history = get_history(conversation_id)
 
-    chunks = retrieve_context(request.question, k=3, doc_id=request.doc_id)
-    answer = generate_chat_answer(request.question, chunks, history)
-    citations = build_citations(chunks)
+    # 1. Chuyển bị State cho LangGraph
+    messages = history + [{"role": "user", "text": request.question}]
+    initial_state = {"messages": messages, "intent": "", "docs": []}
+
+    # 2. Kích hoạt Trợ lý Tự chủ (Agent)
+    result = app.invoke(initial_state)
+
+    answer = extract_text(result["messages"][-1]["text"])
+    
+    # Giả lập citations từ docs để UI không bị lỗi
+    citations = [{"page_content": doc, "metadata": {"source": "Tài liệu hệ thống", "page": 1}} for doc in result.get("docs", [])]
 
     add_message(conversation_id, "user", request.question)
     add_message(conversation_id, "assistant", answer)
@@ -61,50 +77,39 @@ async def chat(request: ChatRequest):
 #         yield f"data: {json.dumps({'type': 'end', 'citations': citations, 'conversation_id': conversation_id})}\n\n"
 
 #     return StreamingResponse(event_generator(), media_type="text/event-stream")
+import asyncio
+
 @router.post("/stream")
 async def chat_stream(request: ChatRequest):
-    # --- BẮT ĐẦU BẤM GIỜ ---
-    start_time = time.time()
-    print(f"\n================ NHẬN CÂU HỎI MỚI ===============")
-    
     conversation_id = request.conversation_id or create_conversation_id()
     history = get_history(conversation_id)
 
-    # 1. Đo thời gian quá trình Retrieval
-    search_start = time.time()
-    chunks = retrieve_context(request.question, k=3, doc_id=request.doc_id)
-    search_time = time.time() - search_start
-    print(f"[1] Thời gian Retrieval (Search + HyDE + Rerank): {search_time:.2f}s")
-    
-    citations = build_citations(chunks)
-    add_message(conversation_id, "user", request.question)
+    messages = history + [{"role": "user", "text": request.question}]
+    initial_state = {"messages": messages, "intent": "", "docs": []}
 
     async def event_generator():
-        full_answer = ""
-        first_token = True
+        # Báo cho Frontend biết là Agent đang suy nghĩ để mở kết nối
+        thinking_msg = json.dumps({'type': 'chunk', 'content': '🧠 [AGENT] Đang suy luận và xử lý...\n\n'})
+        yield f"data: {thinking_msg}\n\n"
+        await asyncio.sleep(0.1)
+
+        # Gọi Agent (chạy đồng bộ)
+        result = app.invoke(initial_state)
         
-        # 2. Đo thời gian quá trình Generate (Stream)
-        gen_start = time.time()
-        for text_chunk in generate_chat_answer_stream(request.question, chunks, history):
-            # Tính thời gian phản hồi chữ đầu tiên (Time To First Token)
-            if first_token:
-                first_token_time = time.time() - gen_start
-                print(f"[2] Thời gian phản hồi Token đầu tiên (TTFT): {first_token_time:.2f}s")
-                first_token = False
-                
-            full_answer += text_chunk
-            yield f"data: {json.dumps({'type': 'chunk', 'content': text_chunk})}\n\n"
+        final_answer = extract_text(result["messages"][-1]["text"])
+        citations = [{"page_content": doc, "metadata": {"source": "Tài liệu hệ thống", "page": 1}} for doc in result.get("docs", [])]
+
+        add_message(conversation_id, "user", request.question)
+        add_message(conversation_id, "assistant", final_answer)
+
+        # Fake Streaming để giữ hiệu ứng gõ chữ (Typewriter) trên Giao diện
+        chunk_size = 15
+        for i in range(0, len(final_answer), chunk_size):
+            chunk = final_answer[i:i+chunk_size]
+            yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
+            await asyncio.sleep(0.02)
         
-        gen_time = time.time() - gen_start
-        print(f"[3] Thời gian sinh toàn bộ câu trả lời: {gen_time:.2f}s")
-        
-        add_message(conversation_id, "assistant", full_answer)
         yield f"data: {json.dumps({'type': 'end', 'citations': citations, 'conversation_id': conversation_id})}\n\n"
-        
-        # Chốt sổ tổng thời gian
-        total_time = time.time() - start_time
-        print(f"TỔNG THỜI GIAN END-TO-END: {total_time:.2f}s")
-        print(f"==================================================\n")
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 

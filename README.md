@@ -1,160 +1,339 @@
-# E-Learning AI Assistant
+<div align="center">
 
-> Một trợ lý học tập đa phương thức (Multimodal RAG) hỗ trợ sinh viên học tập thông qua PDF và hình ảnh, nổi bật với khả năng **tự động sinh Slide bài giảng (PowerPoint)** dựa trên nội dung tài liệu.
+<img src="reports/dashboard.png" alt="EduMind Dashboard" width="900"/>
 
-Dự án này sử dụng 100% công cụ và API miễn phí, được thiết kế dễ đọc, dễ hiểu, phù hợp cho mục đích làm đồ án môn học.
+# EduMind — AI Learning Workspace
 
----
+**Trợ lý học tập đa phương thức, tự chủ (Agentic) dựa trên nền tảng RAG và LangGraph.**
 
-## Tính năng cốt lõi
+Hệ thống có khả năng đọc tài liệu PDF, trả lời câu hỏi kèm trích dẫn nguồn, tự động sinh bài tập trắc nghiệm với vòng lặp tự kiểm tra chất lượng (Self-Correction), giải thích sơ đồ/biểu đồ từ tài liệu, và soạn bài giảng PowerPoint hoàn chỉnh — tất cả chạy trên 100% công cụ miễn phí.
 
-1. **Smart Q&A (RAG):** Đọc file PDF (giáo trình) và trả lời câu hỏi chính xác kèm trích dẫn nguồn (ví dụ: _Nguồn: chuong_1.pdf - Trang 15_).
-2. **Multimodal Vision:** Hiểu hình ảnh (sơ đồ, bài toán, biểu đồ) do người dùng tải lên nhờ sức mạnh của mô hình Vision.
-3. **Auto Slide Generator:** Tính năng đặc trưng nhất. Nhập chủ đề, chọn Lớp (VD: Lớp 12) & Mức độ (VD: Nâng cao), AI sẽ tự động:
-   - Dò tìm thông tin trong tài liệu.
-   - Sinh nội dung và xuất ra file **.pptx** (Standard Mode).
-   - Hoặc xuất ra truyện tranh 4 ô **.png** (Visual Story Mode).
-4. **Quiz Generator:** Tự động tạo câu trắc nghiệm (MCQ) từ tài liệu để ôn tập và có Giám khảo AI tự động chấm điểm.
+[![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green?logo=fastapi)](https://fastapi.tiangolo.com)
+[![LangGraph](https://img.shields.io/badge/LangGraph-Agentic_Workflow-orange?logo=langchain)](https://langchain-ai.github.io/langgraph/)
+[![React](https://img.shields.io/badge/React-Vite-61DAFB?logo=react)](https://vitejs.dev)
+[![ChromaDB](https://img.shields.io/badge/VectorDB-ChromaDB-purple)](https://www.trychroma.com/)
 
----
-
-## Cơ chế hoạt động Multimodal Vision RAG (Toán học & Biểu đồ)
-
-Khác với các hệ thống RAG truyền thống bị "mù" khi gặp ảnh và làm vỡ định dạng công thức Toán học, hệ thống xử lý trơn tru nhờ **Thị giác máy tính (Computer Vision)**:
-
-![Minh họa giao diện Chat và Toán học](reports/flow.png)
+</div>
 
 ---
 
-## Kiến trúc Trợ lý Tự chủ (Agentic Router) & Tự sửa lỗi (Self-Correction)
+## Mục lục
 
-![Kiến trúc LangChain & LangGraph](reports/langchain.png)
-
-Hệ thống sử dụng **LangChain** và **LangGraph** để biến đổi từ một Chatbot RAG thụ động thành một **AI Agent** tự chủ. Agent có khả năng:
-1. **Định tuyến (Routing):** Tự động phân loại câu hỏi của người dùng để quyết định gọi luồng (Node) tạo Quiz, luồng RAG hay luồng Giao tiếp.
-2. **Tự sửa lỗi (Self-Correction):** Sau khi tạo Quiz, hệ thống tự gọi Giám khảo AI (LLM-as-a-judge) chấm điểm. Nếu câu hỏi dưới chuẩn, Agent sẽ kích hoạt vòng lặp tự động sửa lỗi và sinh lại.
-
----
-
-## Kết quả đánh giá hệ thống (Ragas Evaluation)
-
-Hệ thống đã được kiểm thử và đánh giá tự động bằng framework **Ragas** trên tập dữ liệu nội bộ (16 câu hỏi). Kết quả cho thấy rõ sự đánh đổi (Trade-off) khi nâng cấp từ kiến trúc Cơ bản lên Nâng cao:
-
-| Tiêu chí              | Basic RAG (Vector Search) | Advanced RAG (BM25 + Cross-Encoder Reranker) | Phân tích                                                                                                                    |
-| :-------------------- | :-----------------------: | :------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------- |
-| **Context Precision** |         `0.6204`          |                   `0.7222`                   | **Tăng mạnh (16.4%)**: Reranker hoạt động xuất sắc, đẩy chính xác các đoạn văn bản liên quan nhất lên top đầu, lọc bỏ nhiễu. |
-| **Context Recall**    |         `0.6667`          |                   `0.6000`                   | **Giảm nhẹ**: Reranker lọc quá gắt, đôi khi vô tình gạt bỏ một số đoạn văn chứa ngữ cảnh bổ trợ gián tiếp.                   |
-| **Faithfulness**      |         `0.6458`          |                   `0.6654`                   | **Tăng**: Nhờ chất lượng đầu vào (Precision) sạch hơn, LLM giảm tỷ lệ "ảo giác" (hallucination) và bám sát tài liệu tốt hơn. |
-
-> **Kết luận từ thực nghiệm:** Advanced RAG không phải "viên đạn bạc". Với các tác vụ truy xuất từ khóa đơn giản, Basic RAG cho độ phủ (Recall) tốt hơn. Advanced RAG chỉ thực sự tỏa sáng ở khía cạnh Độ chính xác (Precision) và giảm thiểu Ảo giác (Faithfulness) ở những câu hỏi phức tạp.
+- [Demo giao diện](#demo-giao-diện)
+- [Kiến trúc hệ thống](#kiến-trúc-hệ-thống)
+- [Kết quả đánh giá (Ragas)](#kết-quả-đánh-giá-ragas)
+- [Tech Stack](#tech-stack)
+- [Cấu trúc thư mục](#cấu-trúc-thư-mục)
+- [Cài đặt & Chạy dự án](#cài-đặt--chạy-dự-án)
 
 ---
 
-## Công nghệ sử dụng (Tech Stack)
+## Demo giao diện
 
-- **Ngôn ngữ:** Python 3.11+
-- **Core AI Framework:** LangChain & LangGraph (Agentic Workflow)
-- **Backend API:** FastAPI
-- **Frontend UI:** React (Vite) + Tailwind CSS
-- **LLM & Vision:** Google Gemini 1.5 Flash (Free Tier) / Groq Llama 3
-- **Vector Database:** ChromaDB (Local)
-- **Embedding:** `BAAI/bge-m3` (Chạy local, hỗ trợ tiếng Việt cực tốt)
-- **Xử lý PDF/Slide:** `PyMuPDF` (đọc PDF), `python-pptx` (xuất file PowerPoint).
+### 1. Dashboard — Tổng quan học tập
+
+Dashboard cung cấp cái nhìn tổng thể: số giờ học tập, số tài liệu đã phân tích, số cuộc trò chuyện AI, biểu đồ tiến độ học tập theo tuần, và lối tắt nhanh đến các tính năng chính.
+
+<img src="reports/dashboard.png" alt="Dashboard" width="850"/>
+
+---
+
+### 2. Smart Q&A — Advanced RAG với trích dẫn nguồn
+
+Hỏi bất cứ điều gì từ tài liệu. Agent tự phân loại intent, kích hoạt pipeline RAG nâng cao và trả lời chính xác kèm trích dẫn trang nguồn. Mỗi câu trả lời đều có nút tắt để **Tạo Quiz** hoặc **Tạo Slide** ngay từ ngữ cảnh đó.
+
+<img src="reports/rag_base.png" alt="RAG Chat" width="850"/>
+
+**Khả năng hiểu sơ đồ và biểu đồ trong tài liệu (Multimodal):**
+
+Khi người dùng hỏi về một hình ảnh cụ thể trong tài liệu (ví dụ: "Giải thích sơ đồ hình 2, so sánh KNN và K-means"), hệ thống nhận diện ngữ cảnh hình ảnh đó và trả lời bằng ngôn ngữ tự nhiên đầy đủ, kèm bảng so sánh:
+
+<img src="reports/chart.png" alt="Chart from document" width="600"/>
+<img src="reports/answer_chart.png" alt="Agent answers about chart" width="850"/>
+
+**Lịch sử hội thoại được lưu trữ và quản lý:**
+
+<img src="reports/chat_history.png" alt="Chat History" width="850"/>
+
+---
+
+### 3. Hành vi an toàn — Từ chối câu hỏi ngoài phạm vi
+
+Agent được thiết kế để **không hallucinate**. Khi người dùng hỏi về chủ đề không có trong tài liệu, hệ thống từ chối trả lời và gợi ý người dùng hỏi đúng phạm vi — thay vì bịa đặt câu trả lời.
+
+<img src="reports/rag_khi_hỏi_câu_không_liên_quan.png" alt="Out-of-scope question handling" width="850"/>
+
+---
+
+### 4. Agentic Quiz Generator với Self-Correction Loop
+
+Đây là tính năng trung tâm, được xây dựng trên **LangGraph StateGraph**.
+
+**Trang Luyện tập** — Cấu hình bài kiểm tra với độ khó và số câu tùy chỉnh:
+
+<img src="reports/gen_quiz.png" alt="Quiz Generator UI" width="850"/>
+
+**Kết quả Quiz sinh từ Agent** — Bộ câu hỏi đã qua vòng kiểm duyệt AI:
+
+<img src="reports/agent_quiz.png" alt="Agent Quiz Result" width="850"/>
+
+**Log quá trình Self-Correction trong terminal** — Minh chứng Agent tự suy luận, tự nhận sai và sinh lại:
+
+```
+[AGENT] Đang suy luận ý định...
+[AGENT] Đang sinh bài tập... (Lần 1)
+[AGENT] Đang gọi Giám khảo AI chấm điểm câu hỏi...
+[GIÁM KHẢO] Tổng điểm: 10/20
+[AGENT] Điểm quá thấp, quyết định: SINH LẠI BÀI TẬP!
+[AGENT] Đang sinh bài tập... (Lần 2)
+[AGENT] Đang gọi Giám khảo AI chấm điểm câu hỏi...
+[GIÁM KHẢO] Tổng điểm: 10/20
+[AGENT] Đã thử 3 lần vẫn kém, trả về kết quả tốt nhất có thể.
+```
+
+<img src="reports/process_quiz_terminal.png" alt="Quiz Self-Correction Terminal" width="850"/>
+
+**Log pipeline RAG** — Toàn bộ quá trình từ HyDE đến Reranker đến Gemini:
+
+<img src="reports/process_rag_base.png" alt="RAG Pipeline Terminal" width="850"/>
+
+---
+
+### 5. Auto Slide Generator
+
+Nhập chủ đề, chọn số lượng slide và loại nội dung (Học thuật / Tóm tắt). AI trích xuất thông tin từ tài liệu, cấu trúc nội dung và xuất file `.pptx` hoàn chỉnh.
+
+<img src="reports/gen_slide.png" alt="Slide Generator" width="850"/>
+
+---
+
+### 6. Thư viện Tài liệu
+
+Upload và quản lý tài liệu học tập. Hỗ trợ PDF, DOCX, TXT. Hiển thị trạng thái xử lý và số lượng chunks được tạo ra.
+
+<img src="reports/upload_pages.png" alt="Document Library" width="850"/>
+
+---
+
+### 7. Cài đặt Workspace
+
+Cấu hình profile cá nhân, nguồn tài liệu mặc định, theme slide, độ khó quiz, và quyền riêng tư (lưu/không lưu lịch sử chat).
+
+<img src="reports/settings.png" alt="Settings" width="850"/>
+
+---
+
+## Kiến trúc hệ thống
+
+### Agentic Workflow (LangGraph StateGraph)
+
+<img src="reports/langchain.png" alt="LangGraph Architecture" width="900"/>
+
+Toàn bộ luồng xử lý được điều phối bởi một `StateGraph` với các node chuyên biệt:
+
+```
+Người dùng gửi tin nhắn
+       │
+       ▼
+  [router_node]             ← Phân tích intent: Quiz hay RAG?
+       │
+   ┌───┴────────────────────┐
+   ▼                        ▼
+[rag_node]          [generate_quiz_node]
+   │                        │
+   │                 [evaluate_quiz_node]  ← LLM-as-a-Judge (Groq Llama 3)
+   │                        │               Chấm điểm 4 chiều (0–20 điểm)
+   │                   Score < 15
+   │                   và < 3 lần? ──Yes──► quay lại [generate_quiz_node]
+   │                        │ No
+   └──────────────────────[END]
+```
+
+### Advanced RAG Pipeline
+
+```
+Câu hỏi người dùng
+       │
+       ▼
+  [HyDE Generator]         ← Gemini sinh "tài liệu giả định" để mở rộng query
+       │
+       ▼
+  [Hybrid Retriever]        ← BM25 Keyword + Dense Vector Search (ChromaDB)
+       │
+       ▼
+  [Cross-Encoder Reranker]  ← BAAI/bge-reranker-v2-m3 chấm điểm lại toàn bộ
+       │
+       ▼
+  [Gemini Generator]        ← Sinh câu trả lời + trích dẫn nguồn trang
+```
+
+---
+
+## Kết quả đánh giá (Ragas)
+
+Hệ thống được kiểm thử tự động với framework **Ragas** trên 16 câu hỏi nội bộ (Easy / Medium / Hard), so sánh hai phiên bản kiến trúc:
+
+| Tiêu chí | Basic RAG | Advanced RAG (BM25 + Reranker) | Δ |
+|:---|:---:|:---:|:---:|
+| **Context Precision** | `0.6204` | `0.7222` | **+16.4% ↑** |
+| **Context Recall** | `0.6667` | `0.6000` | -10% ↓ |
+| **Faithfulness** | `0.6458` | `0.6654` | **+3% ↑** |
+
+> **Nhận xét thực nghiệm:** Cross-Encoder Reranker lọc nhiễu xuất sắc (Precision +16.4%), đẩy câu trả lời bám sát tài liệu hơn (Faithfulness tăng). Tuy nhiên, Recall giảm nhẹ vì Reranker đôi khi loại bỏ các đoạn có ngữ cảnh bổ trợ gián tiếp. Đây là trade-off cần cân nhắc tùy bài toán: ưu tiên độ chính xác → Advanced RAG; ưu tiên độ phủ → Basic RAG.
+
+---
+
+## Tech Stack
+
+| Layer | Công nghệ |
+|:---|:---|
+| **Core AI Framework** | LangChain + LangGraph (Agentic Workflow) |
+| **LLM — Chat & Quiz & Slide** | Google Gemini 1.5 Flash (Free Tier) |
+| **LLM-as-a-Judge** | Groq Llama 3.3-70b (Đánh giá chất lượng Quiz) |
+| **Embedding** | `BAAI/bge-m3` — chạy local, tối ưu tiếng Việt |
+| **Reranker** | `BAAI/bge-reranker-v2-m3` — Cross-Encoder |
+| **Vector Database** | ChromaDB (Local, Persistent) |
+| **Backend API** | FastAPI + Uvicorn |
+| **Frontend UI** | React 18 (Vite) + Tailwind CSS |
+| **PDF Processing** | PyMuPDF (`fitz`) — giữ nguyên công thức, bảng biểu, hình ảnh |
+| **Slide Export** | `python-pptx` |
+| **Speech-to-Text** | OpenAI Whisper (Voice Chat) |
+| **Evaluation** | Ragas Framework |
 
 ---
 
 ## Cấu trúc thư mục
 
 ```text
-elearning-ai/
-├── backend/                 # Xử lý logic chính
-│   ├── ingestion/           # Parse PDF & Hình ảnh thành text
-│   ├── rag/                 # Logic search và chat LLM
-│   ├── slides/              # Logic sinh slide & render .pptx
-│   ├── models/              # Các Pydantic Schema
-│   └── main.py              # File chạy FastAPI Server
-├── frontend/
-│   └── app.py               # File chạy Streamlit UI
-├── data/                    # Nơi chứa data local
-│   ├── raw/                 # PDF gốc
-│   ├── processed/           # Text chunks cache
-│   └── slides/              # Slide xuất ra
-├── notebooks/               # Chứa file .ipynb để test trực quan AI/RAG
-├── docs/                    # Chứa tài liệu, file kế hoạch và kiến trúc
-├── templates/               # (Tùy chọn) Chứa mẫu .pptx đẹp
-└── .env                     # Chứa API Key bảo mật
+multimodel_e_learning/
+├── backend/
+│   ├── agent/                   # 🧠 LangGraph Agentic Core
+│   │   ├── state.py             # AgentState schema (TypedDict)
+│   │   ├── nodes.py             # router, rag, generate_quiz, evaluate_quiz nodes
+│   │   └── graph.py             # StateGraph compilation & conditional edges
+│   ├── rag/
+│   │   ├── retriever.py         # HyDE + Hybrid Search + Cross-Encoder Reranker
+│   │   ├── generator.py         # Gemini answer generator (stream & non-stream)
+│   │   └── memory.py            # Conversation history (JSON persistence)
+│   ├── quiz/
+│   │   ├── quiz_generator.py    # Quiz generation với Pydantic output parser
+│   │   └── evaluator.py         # LLM-as-a-Judge: 4-dimension scoring
+│   ├── ingestion/
+│   │   ├── pdf_parser.py        # PyMuPDF: parse text, bảng, công thức
+│   │   └── chunker.py           # RecursiveCharacterTextSplitter
+│   ├── slides/
+│   │   └── slide_generator.py   # RAG-powered content → python-pptx export
+│   ├── db/
+│   │   └── vector_store.py      # ChromaDB init & collection management
+│   ├── voice/
+│   │   └── transcriber.py       # Whisper Speech-to-Text
+│   ├── api/routers/             # FastAPI endpoints: chat, quiz, slides, documents...
+│   └── main.py                  # Application entrypoint
+├── frontend/                    # React 18 + Vite + Tailwind CSS
+│   └── src/pages/               # Dashboard, Chat, Documents, Quiz, Slides, Settings
+├── notebooks/                   # Jupyter notebooks — thực nghiệm & đánh giá
+│   ├── 01_test_pdf_parser.ipynb
+│   ├── 02_test_rag_pipeline.ipynb
+│   ├── 03_evaluate_rag.ipynb
+│   └── 06_agentic_workflow.ipynb  # Visualize LangGraph bằng draw_mermaid_png()
+├── data/
+│   ├── raw/                     # File PDF/TXT gốc
+│   └── eval/datasets/           # Tập câu hỏi đánh giá (easy/medium/hard)
+├── reports/                     # Screenshots thực tế & kết quả thực nghiệm
+├── requirements.txt
+└── .env                         # API Keys (không commit lên Git)
 ```
 
 ---
 
-## Hướng dẫn cài đặt
+## Cài đặt & Chạy dự án
 
-Yêu cầu hệ thống: Máy đã cài đặt **Conda** (Miniconda hoặc Anaconda) và **Git**.
+### Yêu cầu hệ thống
 
-### Bước 1: Clone dự án
+- Python **3.11+**
+- Conda (Miniconda hoặc Anaconda)
+- Node.js **18+** và npm
 
-Mở terminal/cmd (hoặc Anaconda Prompt) và chạy lệnh:
+### Bước 1 — Clone repository
 
 ```bash
 git clone <link-github-cua-nhom>
 cd multimodel_e_learning
 ```
 
-### Bước 2: Tạo môi trường ảo với Conda
-
-Tạo một môi trường Python 3.11 riêng biệt cho dự án:
+### Bước 2 — Tạo và kích hoạt môi trường Conda
 
 ```bash
-conda create -n elearning_env python=3.11 -y
+conda create -n elearning python=3.11 -y
+conda activate elearning
 ```
 
-**Kích hoạt môi trường ảo:**
-
-```bash
-conda activate elearning_env
-```
-
-_(Lưu ý: Bạn phải thấy chữ `(elearning_env)` xuất hiện ở đầu dòng lệnh mới là thành công)._
-
-### Bước 3: Cài đặt thư viện
+### Bước 3 — Cài đặt dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Bước 4: Khởi tạo biến môi trường (.env)
+### Bước 4 — Cấu hình biến môi trường
 
-1. Tạo một file tên là `.env` ở ngay ngoài cùng thư mục dự án (ngang hàng với `requirements.txt`).
-2. Mở file `.env` lên và dán dòng này vào:
+Tạo file `.env` ở thư mục gốc:
 
 ```env
-GEMINI_API_KEY=điền_key_của_bạn_vào_đây
+# Bắt buộc — lấy miễn phí tại https://aistudio.google.com/
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Tùy chọn — dùng cho Quiz Evaluation, lấy miễn phí tại https://console.groq.com/
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
-_(Bạn có thể lấy key miễn phí tại [Google AI Studio](https://aistudio.google.com/))._
+### Bước 5 — Cài đặt Frontend
+
+```bash
+cd frontend
+npm install
+cd ..
+```
+
+### Chạy dự án
+
+Mở **2 terminal** song song (cả 2 đều `conda activate elearning`):
+
+**Terminal 1 — Backend (FastAPI):**
+```bash
+python -m uvicorn backend.main:app --reload
+```
+→ API: `http://localhost:8000` | Swagger: `http://localhost:8000/docs`
+
+**Terminal 2 — Frontend (React):**
+```bash
+cd frontend && npm run dev
+```
+→ Giao diện: `http://localhost:5173`
+
+### Bắt đầu sử dụng
+
+1. Mở `http://localhost:5173` → vào **Tài liệu** → Upload file PDF/TXT
+2. Chờ trạng thái chuyển sang `READY`
+3. Vào **Chat & RAG** → Hỏi đáp với AI
+4. Thử: `"Tạo 3 câu trắc nghiệm từ tài liệu"` để kích hoạt Agentic Quiz Generator
 
 ---
 
-## Cách chạy dự án
+## Notebooks
 
-Hệ thống có 2 phần tách biệt: Backend (API) và Frontend (Giao diện). Bạn cần mở **2 cửa sổ Terminal** riêng biệt. Nhớ `activate` môi trường ảo ở cả 2 cửa sổ.
-
-**Terminal 1: Chạy Backend (FastAPI)**
-
-```bash
-uvicorn backend.main:app --reload
-```
-
-👉 Backend sẽ chạy tại: `http://localhost:8000` (Bạn có thể vào `http://localhost:8000/docs` để xem API Swagger).
-
-**Terminal 2: Chạy Frontend (Streamlit)**
-
-```bash
-streamlit run frontend/app.py
-```
-
-👉 Giao diện sẽ tự động mở lên trên trình duyệt tại: `http://localhost:8501`.
+| Notebook | Mục đích |
+|:---|:---|
+| `01_test_pdf_parser.ipynb` | Kiểm tra chất lượng parse PDF |
+| `02_test_rag_pipeline.ipynb` | Test end-to-end RAG pipeline |
+| `03_evaluate_rag.ipynb` | Ragas evaluation — so sánh Basic vs Advanced RAG |
+| `06_agentic_workflow.ipynb` | Visualize LangGraph StateGraph + test agent |
 
 ---
 
-_Lưu ý: Mọi code push lên Git sẽ không bao gồm thư mục `venv/` và file `.env` để bảo vệ API key của bạn._
+<div align="center">
+
+*Dự án được xây dựng hoàn toàn với công cụ và API miễn phí.*
+*Thiết kế để dễ đọc, dễ mở rộng — phù hợp cho mục đích nghiên cứu và học thuật.*
+
+</div>

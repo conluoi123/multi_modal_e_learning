@@ -19,7 +19,7 @@ from pathlib import Path
 from backend.rag.generator import get_llm
 from backend.models.schemas import SlidePresentation
 from langchain_core.output_parsers import JsonOutputParser
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 
 
 # ── Đường dẫn tới slide_builder.js (đặt cùng thư mục file này) ──

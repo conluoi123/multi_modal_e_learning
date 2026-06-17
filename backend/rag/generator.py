@@ -7,7 +7,7 @@ Nhiệm vụ:
 - Sinh câu trả lời dựa trên tài liệu và kèm nguồn trích dẫn.
 """
 
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from backend.core.config import GEMINI_API_KEY, GEMINI_MODEL
