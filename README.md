@@ -1,4 +1,4 @@
-# 🎓 E-Learning AI Assistant
+# E-Learning AI Assistant
 
 > Một trợ lý học tập đa phương thức (Multimodal RAG) hỗ trợ sinh viên học tập thông qua PDF và hình ảnh, nổi bật với khả năng **tự động sinh Slide bài giảng (PowerPoint)** dựa trên nội dung tài liệu.
 
@@ -8,25 +8,33 @@ Dự án này sử dụng 100% công cụ và API miễn phí, được thiết 
 
 ## Tính năng cốt lõi
 
-1. **🔍 Smart Q&A (RAG):** Đọc file PDF (giáo trình) và trả lời câu hỏi chính xác kèm trích dẫn nguồn (ví dụ: _Nguồn: chuong_1.pdf - Trang 15_).
-2. **🖼️ Multimodal Vision:** Hiểu hình ảnh (sơ đồ, bài toán, biểu đồ) do người dùng tải lên nhờ sức mạnh của mô hình Vision.
-3. **🪄 Auto Slide Generator:** Tính năng đặc trưng nhất. Nhập chủ đề, chọn Lớp (VD: Lớp 12) & Mức độ (VD: Nâng cao), AI sẽ tự động:
+1. **Smart Q&A (RAG):** Đọc file PDF (giáo trình) và trả lời câu hỏi chính xác kèm trích dẫn nguồn (ví dụ: _Nguồn: chuong_1.pdf - Trang 15_).
+2. **Multimodal Vision:** Hiểu hình ảnh (sơ đồ, bài toán, biểu đồ) do người dùng tải lên nhờ sức mạnh của mô hình Vision.
+3. **Auto Slide Generator:** Tính năng đặc trưng nhất. Nhập chủ đề, chọn Lớp (VD: Lớp 12) & Mức độ (VD: Nâng cao), AI sẽ tự động:
    - Dò tìm thông tin trong tài liệu.
    - Sinh nội dung và xuất ra file **.pptx** (Standard Mode).
    - Hoặc xuất ra truyện tranh 4 ô **.png** (Visual Story Mode).
-4. **📝 Quiz Generator:** Tự động tạo câu trắc nghiệm (MCQ) từ tài liệu để ôn tập và có Giám khảo AI tự động chấm điểm.
+4. **Quiz Generator:** Tự động tạo câu trắc nghiệm (MCQ) từ tài liệu để ôn tập và có Giám khảo AI tự động chấm điểm.
 
 ---
 
-## 📊 Kết quả đánh giá hệ thống (Ragas Evaluation)
+## Cơ chế hoạt động Multimodal Vision RAG (Toán học & Biểu đồ)
+
+Khác với các hệ thống RAG truyền thống bị "mù" khi gặp ảnh và làm vỡ định dạng công thức Toán học, hệ thống xử lý trơn tru nhờ **Thị giác máy tính (Computer Vision)**:
+
+![Minh họa giao diện Chat và Toán học](reports/flow.png)
+
+---
+
+## Kết quả đánh giá hệ thống (Ragas Evaluation)
 
 Hệ thống đã được kiểm thử và đánh giá tự động bằng framework **Ragas** trên tập dữ liệu nội bộ (16 câu hỏi). Kết quả cho thấy rõ sự đánh đổi (Trade-off) khi nâng cấp từ kiến trúc Cơ bản lên Nâng cao:
 
-| Tiêu chí | Basic RAG (Vector Search) | Advanced RAG (BM25 + Cross-Encoder Reranker) | Phân tích |
-| :--- | :---: | :---: | :--- |
-| **Context Precision** | `0.6204` | `0.7222` | **Tăng mạnh (16.4%)**: Reranker hoạt động xuất sắc, đẩy chính xác các đoạn văn bản liên quan nhất lên top đầu, lọc bỏ nhiễu. |
-| **Context Recall** | `0.6667` | `0.6000` | **Giảm nhẹ**: Reranker lọc quá gắt, đôi khi vô tình gạt bỏ một số đoạn văn chứa ngữ cảnh bổ trợ gián tiếp. |
-| **Faithfulness** | `0.6458` | `0.6654` | **Tăng**: Nhờ chất lượng đầu vào (Precision) sạch hơn, LLM giảm tỷ lệ "ảo giác" (hallucination) và bám sát tài liệu tốt hơn. |
+| Tiêu chí              | Basic RAG (Vector Search) | Advanced RAG (BM25 + Cross-Encoder Reranker) | Phân tích                                                                                                                    |
+| :-------------------- | :-----------------------: | :------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------- |
+| **Context Precision** |         `0.6204`          |                   `0.7222`                   | **Tăng mạnh (16.4%)**: Reranker hoạt động xuất sắc, đẩy chính xác các đoạn văn bản liên quan nhất lên top đầu, lọc bỏ nhiễu. |
+| **Context Recall**    |         `0.6667`          |                   `0.6000`                   | **Giảm nhẹ**: Reranker lọc quá gắt, đôi khi vô tình gạt bỏ một số đoạn văn chứa ngữ cảnh bổ trợ gián tiếp.                   |
+| **Faithfulness**      |         `0.6458`          |                   `0.6654`                   | **Tăng**: Nhờ chất lượng đầu vào (Precision) sạch hơn, LLM giảm tỷ lệ "ảo giác" (hallucination) và bám sát tài liệu tốt hơn. |
 
 > **Kết luận từ thực nghiệm:** Advanced RAG không phải "viên đạn bạc". Với các tác vụ truy xuất từ khóa đơn giản, Basic RAG cho độ phủ (Recall) tốt hơn. Advanced RAG chỉ thực sự tỏa sáng ở khía cạnh Độ chính xác (Precision) và giảm thiểu Ảo giác (Faithfulness) ở những câu hỏi phức tạp.
 
