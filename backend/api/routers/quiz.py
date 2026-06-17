@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from backend.models.schemas import QuizRequest, QuizResponse
 from backend.quiz.quiz_generator import generate_quiz
+from backend.quiz.evaluator import evaluate_quiz_question
 from backend.rag.citations import build_citations
 from backend.rag.retriever import retrieve_context
 
@@ -23,17 +24,28 @@ async def generate_quiz_api(request: QuizRequest):
         difficulty=request.difficulty,
     )
 
+    evaluated_questions = []
+    for question in quiz_set.questions:
+        # Chấm điểm từng câu hỏi
+        eval_result = evaluate_quiz_question(
+            context=context_text,
+            question={
+                "question": question.question,
+                "options": question.options,
+                "answer": question.answer
+            }
+        )
+        evaluated_questions.append({
+            "question": question.question,
+            "options": question.options,
+            "answer": question.answer,
+            "explanation": question.explanation,
+            "evaluation": eval_result
+        })
+
     citations = build_citations(chunks)
 
     return QuizResponse(
-        questions=[
-            {
-                "question": question.question,
-                "options": question.options,
-                "answer": question.answer,
-                "explanation": question.explanation,
-            }
-            for question in quiz_set.questions
-        ],
+        questions=evaluated_questions,
         citations=citations,
     )

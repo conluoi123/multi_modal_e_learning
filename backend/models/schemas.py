@@ -80,6 +80,7 @@ class QuizQuestion(BaseModel):
     options: List[str]
     answer: str
     explanation: str
+    evaluation: Optional[Dict] = None
 
 
 class QuizResponse(BaseModel):
