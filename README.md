@@ -26,6 +26,16 @@ Khác với các hệ thống RAG truyền thống bị "mù" khi gặp ảnh v�
 
 ---
 
+## Kiến trúc Trợ lý Tự chủ (Agentic Router) & Tự sửa lỗi (Self-Correction)
+
+![Kiến trúc LangChain & LangGraph](reports/langchain.png)
+
+Hệ thống sử dụng **LangChain** và **LangGraph** để biến đổi từ một Chatbot RAG thụ động thành một **AI Agent** tự chủ. Agent có khả năng:
+1. **Định tuyến (Routing):** Tự động phân loại câu hỏi của người dùng để quyết định gọi luồng (Node) tạo Quiz, luồng RAG hay luồng Giao tiếp.
+2. **Tự sửa lỗi (Self-Correction):** Sau khi tạo Quiz, hệ thống tự gọi Giám khảo AI (LLM-as-a-judge) chấm điểm. Nếu câu hỏi dưới chuẩn, Agent sẽ kích hoạt vòng lặp tự động sửa lỗi và sinh lại.
+
+---
+
 ## Kết quả đánh giá hệ thống (Ragas Evaluation)
 
 Hệ thống đã được kiểm thử và đánh giá tự động bằng framework **Ragas** trên tập dữ liệu nội bộ (16 câu hỏi). Kết quả cho thấy rõ sự đánh đổi (Trade-off) khi nâng cấp từ kiến trúc Cơ bản lên Nâng cao:
@@ -43,9 +53,10 @@ Hệ thống đã được kiểm thử và đánh giá tự động bằng fram
 ## Công nghệ sử dụng (Tech Stack)
 
 - **Ngôn ngữ:** Python 3.11+
+- **Core AI Framework:** LangChain & LangGraph (Agentic Workflow)
 - **Backend API:** FastAPI
-- **Frontend UI:** Streamlit
-- **LLM & Vision:** Google Gemini 1.5 Flash (Free Tier)
+- **Frontend UI:** React (Vite) + Tailwind CSS
+- **LLM & Vision:** Google Gemini 1.5 Flash (Free Tier) / Groq Llama 3
 - **Vector Database:** ChromaDB (Local)
 - **Embedding:** `BAAI/bge-m3` (Chạy local, hỗ trợ tiếng Việt cực tốt)
 - **Xử lý PDF/Slide:** `PyMuPDF` (đọc PDF), `python-pptx` (xuất file PowerPoint).
