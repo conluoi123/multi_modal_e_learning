@@ -22,13 +22,13 @@ def _build_splitter(chunk_size: int = 600, chunk_overlap: int = 120):
         from backend.db.vector_store import get_embedder
 
         embedder = get_embedder()
-        splitter = SemanticChunker(
-            embedder,
-            breakpoint_threshold_type="percentile",   # Tìm điểm gián đoạn ngữ nghĩa theo percentile
-            breakpoint_threshold_amount=95            # Top 5% điểm gián đoạn lớn nhất → cắt ở đó
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            separators=["\n\n", "\n", ".", " ", ""]
         )
-        print("[CHUNKER]  Sử dụng SemanticChunker (breakpoint_threshold=percentile:95)")
-        return splitter, "semantic"
+        print("[CHUNKER]  Sử dụng RecursiveCharacterTextSplitter")
+        return splitter, "recursive"
 
     except ImportError:
         print("[CHUNKER]   langchain-experimental chưa được cài. Fallback → RecursiveCharacterTextSplitter")
