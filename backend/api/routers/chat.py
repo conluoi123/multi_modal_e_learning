@@ -33,8 +33,8 @@ async def chat(request: ChatRequest):
     messages = history + [{"role": "user", "text": request.question}]
     initial_state = {"messages": messages, "intent": "", "docs": []}
 
-    # 2. Kích hoạt Trợ lý Tự chủ (Agent)
-    result = app.invoke(initial_state)
+    # 2. Kích hoạt Trợ lý Tự chủ (Agent) — chạy trong thread riêng, không block event loop
+    result = await asyncio.to_thread(app.invoke, initial_state)
 
     answer = extract_text(result["messages"][-1]["text"])
     
@@ -93,8 +93,8 @@ async def chat_stream(request: ChatRequest):
         yield f"data: {thinking_msg}\n\n"
         await asyncio.sleep(0.1)
 
-        # Gọi Agent (chạy đồng bộ)
-        result = app.invoke(initial_state)
+        # Gọi Agent trong thread riêng — tránh block Uvicorn event loop
+        result = await asyncio.to_thread(app.invoke, initial_state)
         
         final_answer = extract_text(result["messages"][-1]["text"])
         citations = [{"page_content": doc, "metadata": {"source": "Tài liệu hệ thống", "page": 1}} for doc in result.get("docs", [])]

@@ -1,4 +1,5 @@
 import json
+import re
 from langchain_core.prompts import PromptTemplate
 from backend.rag.generator import get_llm
 from backend.models.schemas import QuizSetLLM
@@ -7,10 +8,10 @@ evaluator_template = """
 Bạn là một Chuyên gia Khảo thí (Assessment Expert) cấp cao tại một trường Đại học. 
 Nhiệm vụ của bạn là thẩm định khắt khe một câu hỏi trắc nghiệm (MCQ) do hệ thống AI khác sinh ra.
 
-[NGỮ CẢNH TỪ TÀI LIỆU (CONTEXT)]: 
+[NGỮ CẢNH TỜ TÀI LIỆU (CONTEXT)]: 
 {context}
 
-[CÂU HỎI TRẮC NGHIỆM ĐƯỢC SINH RA]:
+[CÂU HỏI TRẮc NGHIỆM ĐƯỢC SINH RA]:
 Câu hỏi: {question}
 Các lựa chọn: {options}
 Đáp án đúng: {correct_answer}
@@ -49,6 +50,22 @@ prompt = PromptTemplate(
     input_variables=["context", "question", "options", "correct_answer"]
 )
 
+def _extract_content(response) -> str:
+    """
+    Gemini đôi khi trả về response.content là list các content block thay vì string.
+    Hàm này đảm bảo luôn trả về string.
+    """
+    content = response.content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, dict):
+                parts.append(block.get("text", ""))
+            elif isinstance(block, str):
+                parts.append(block)
+        return "\n".join(parts)
+    return str(content)
+
 def evaluate_quiz_question(context: str, question: dict) -> dict:
     """
     Đánh giá 1 câu hỏi MCQ. question là dictionary dạng:
@@ -69,8 +86,23 @@ def evaluate_quiz_question(context: str, question: dict) -> dict:
     
     try:
         response = llm.invoke(final_prompt)
-        raw_json = response.content.strip().replace("```json", "").replace("```", "")
-        result = json.loads(raw_json)
+        raw_text = _extract_content(response).strip()
+
+        # Xóa code fence nếu có
+        raw_json = re.sub(r"```json\s*|```\s*", "", raw_text).strip()
+
+        # Tìm JSON block đầu tiên trong response (tránh bị prefix text làm nhiễu)
+        match = re.search(r"\{.*\}", raw_json, re.DOTALL)
+        if not match:
+            raise ValueError("Không tìm thấy JSON hợp lệ trong response")
+
+        result = json.loads(match.group())
+
+        # Đảm bảo luôn có total_score
+        if "total_score" not in result:
+            scores = result.get("scores", {})
+            result["total_score"] = sum(scores.values()) if scores else 10
+
         return result
     except Exception as e:
         print(f"Lỗi chấm điểm: {e}")

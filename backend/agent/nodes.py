@@ -63,11 +63,13 @@ def evaluate_quiz_node(state):
     )
     
     try:
-        total_score = sum(eval_result.values())
-        print(f"[GIÁM KHẢO] Tổng điểm: {total_score}/20")
+        total_score = eval_result.get("total_score", 0)
+        if not isinstance(total_score, (int, float)):
+            total_score = 0
+        print(f"[GIÁM KHẢO] Tổng điểm: {total_score}/20 | Verdict: {eval_result.get('verdict', 'N/A')}")
     except Exception as e:
-        print(f"[GIÁM KHẢO] Lỗi parse điểm, cho điểm liệt = 10")
-        total_score = 10
+        print(f"[GIÁM KHẢO] Lỗi đọc điểm: {e}, cho điểm liệt = 0")
+        total_score = 0
         
     # Format kết quả nếu đạt chuẩn hoặc hết lượt chạy
     messages = state.get("messages", [])

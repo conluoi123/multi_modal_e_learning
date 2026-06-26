@@ -1,41 +1,85 @@
-# Cốt lõi
+# ====================================================================
+# EduMind — Requirements (Chuẩn hóa phiên bản ổn định)
+# Python 3.11
+# ====================================================================
+
+# --- Backend Core ---
 fastapi==0.111.0
 uvicorn==0.30.1
-pydantic==2.7.4
+python-multipart==0.0.20
 python-dotenv==1.0.1
+starlette==0.37.2
 
-# AI & RAG
-langchain==0.2.6
-langchain-community==0.2.6
-langchain-google-genai==1.0.6
-langchain-huggingface==0.0.3
-sentence-transformers==3.0.1
-chromadb==0.5.3
-faster-whisper==1.2.1
+# --- Pydantic ---
+pydantic==2.9.0
+pydantic-settings==2.4.0
 
-# PDF & Data parsing
-PyMuPDF==1.24.5     # fitz
-pdfplumber==0.11.1
+# --- LangChain Ecosystem (Stable 0.3.x) ---
+langchain==0.3.14
+langchain-core==0.3.29
+langchain-community==0.3.14
+langchain-text-splitters==0.3.5
+langchain-google-genai==2.0.8
+langchain-groq==0.2.3
+langchain-huggingface==0.1.2
+langchain-experimental==0.3.4   
 
-# Slide Generator (Tính năng đặc trưng)
-python-pptx==0.6.23
-Pillow==10.3.0
+# --- LangGraph ---
+langgraph==0.2.60
+langgraph-checkpoint==2.0.10
+langgraph-prebuilt==0.1.1
+
+# --- LLM Clients ---
+google-generativeai==0.8.3
+google-genai==2.8.0
+groq==0.14.0
+openai==1.59.3
+
+# --- Embedding & Reranker & Vector DB ---
+sentence-transformers==3.3.1
+transformers==4.45.2
+torch==2.5.1
+chromadb==0.5.23
+rank-bm25==0.2.2
+
+# --- PDF & Document Parsing ---
+PyMuPDF==1.24.11
+pdfplumber==0.11.4
+
+# --- Audio & Speech ---
+faster-whisper==1.0.3
+
+# --- Slide Generator ---
+python-pptx>=1.0.2
+Pillow==10.4.0
+
+# --- Data & ML Utils ---
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.5.2
+scipy==1.14.1
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# --- HTTP & Async ---
+httpx==0.28.1
 requests==2.32.3
+aiohttp==3.10.11
 
-# Frontend
-streamlit==1.36.0
+# --- Evaluation (Đồng bộ Langchain 0.3.x) ---
+ragas==0.2.7
+datasets==2.20.0
 
-# Evaluation (Phase sau)
-# ragas==0.1.9
+# --- Jupyter Notebooks ---
+jupyter==1.1.1
+ipykernel==6.29.5
+ipywidgets==8.1.5
 
-# Thực nghiệm trực quan (Jupyter Notebooks)
-jupyter==1.0.0
-ipykernel==6.29.4
+# --- Testing ---
+pytest==8.3.3
 
-# test 
-pytest 
-
-# val 
-ragas 
-datasets 
-
+# --- Misc ---
+tenacity==8.5.0
+tqdm==4.66.5
+PyYAML==6.0.2
+docling==2.28.0

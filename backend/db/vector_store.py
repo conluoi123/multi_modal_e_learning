@@ -1,10 +1,6 @@
 """
-Vector store layer for E-Learning RAG.
-
-Responsibilities:
-- Initialize embedding model.
-- Connect to local ChromaDB.
-- Add processed chunks into vector database.
+    Nằm ngay sau bước Parsing + Chunking. Nó quản lý toàn bộ VectorDB. 
+    
 """
 
 import hashlib

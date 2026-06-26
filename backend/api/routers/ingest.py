@@ -9,6 +9,7 @@ from backend.db.vector_store import add_chunks_to_db, init_vector_store
 from backend.ingestion.chunker import chunk_text
 from backend.ingestion.pdf_parser import parse_pdf
 from backend.models.schemas import IngestResponse
+from backend.rag.retriever import reset_bm25_index
 
 router = APIRouter(prefix="/api/v1", tags=["Ingestion"])
 
@@ -65,6 +66,9 @@ async def ingest_file(file: UploadFile = File(...)):
         chunk["metadata"]["filename"] = filename
 
     total_saved = add_chunks_to_db(chunks)
+
+    # Reset BM25 Index để rebuild lại với corpus mới bao gồm tài liệu vừa upload
+    reset_bm25_index()
 
     return IngestResponse(
         status="success",
