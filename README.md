@@ -170,36 +170,53 @@ Câu hỏi người dùng
 
 ---
 
-## Kết quả đánh giá (Ragas)
+## Đánh giá Hiệu năng Hệ thống
 
-Hệ thống được kiểm thử tự động với framework **Ragas** trên 16 câu hỏi nội bộ (Easy / Medium / Hard), so sánh hai phiên bản kiến trúc:
+Hệ thống được đánh giá qua 2 vòng khắt khe (Đánh giá độc lập tầng Tìm kiếm và Đánh giá Toàn trình) trên bộ câu hỏi chuyên ngành Môi trường (REIS).
 
-| Tiêu chí | Basic RAG | Advanced RAG (BM25 + Reranker) | Δ |
-|:---|:---:|:---:|:---:|
-| **Context Precision** | `0.6204` | `0.7222` | **+16.4% ↑** |
-| **Context Recall** | `0.6667` | `0.6000` | -10% ↓ |
-| **Faithfulness** | `0.6458` | `0.6654` | **+3% ↑** |
+### 1. Đánh giá Tầng Tìm kiếm (Retrieval Evaluation)
 
-> **Nhận xét thực nghiệm:** Cross-Encoder Reranker lọc nhiễu xuất sắc (Precision +16.4%), đẩy câu trả lời bám sát tài liệu hơn (Faithfulness tăng). Tuy nhiên, Recall giảm nhẹ vì Reranker đôi khi loại bỏ các đoạn có ngữ cảnh bổ trợ gián tiếp. Đây là trade-off cần cân nhắc tùy bài toán: ưu tiên độ chính xác → Advanced RAG; ưu tiên độ phủ → Basic RAG.
+Đo lường bằng các chỉ số Toán học truyền thống (Information Retrieval Metrics):
+
+| Cấu trúc Tìm kiếm                        | Hit Rate@5 | Recall@5  |   MRR@5   |
+| :--------------------------------------- | :--------: | :-------: | :-------: |
+| Base RAG (Chỉ Dense)                     |   0.533    |   0.433   |   0.372   |
+| **Hybrid RAG (BM25: 0.4 / Dense: 0.6)**  | **0.666**  | **0.533** | **0.393** |
+| Advanced RAG v1 (Dense + HyDE + Rerank)  |   0.600    |   0.500   |   0.287   |
+| Advanced RAG v2 (Hybrid + HyDE + Rerank) |   0.600    |   0.466   |   0.287   |
+
+> **Nhận xét:** Hệ thống Hybrid (kết hợp BM25 tỷ trọng 0.4 và Dense 0.6) cho thấy sự áp đảo hoàn toàn khi đẩy Hit Rate từ 53.3% lên mức đỉnh **66.6%**. Đáng chú ý, mô hình Cross-Encoder (`bge-reranker-v2-m3`) gặp hiện tượng "Domain Mismatch" (thiếu từ vựng chuyên ngành Môi trường tiếng Việt), vô tình đánh tụt hạng các tài liệu chứa từ khóa hiếm, làm MRR tụt xuống 0.287. Do đó, nhóm quyết định **loại bỏ tầng Reranker** ở hệ thống Production để tối ưu tốc độ và độ chính xác.
+
+### 2. Đánh giá Toàn trình (End-to-End Evaluation bằng Ragas)
+
+Đo lường chất lượng Câu trả lời cuối cùng bằng LLM-as-a-judge (Gemini 1.5 Flash):
+
+| Phiên bản RAG                          | Faithfulness (Độ trung thực) | Answer Relevancy (Độ bám sát câu hỏi) | Context Precision (Tỷ lệ tín hiệu/nhiễu) | Context Recall (Độ bao phủ) |
+| :------------------------------------- | :--------------------------: | :-----------------------------------: | :--------------------------------------: | :-------------------------: |
+| Basic (Chỉ Dense)                      |            0.9214            |              **0.9422**               |                  0.7278                  |           0.7333            |
+| **Advanced 1 (Dense + HyDE + Rerank)** |          **0.9782**          |                0.9310                 |                **0.8778**                |           0.7333            |
+| Advanced 2 (Hybrid + HyDE + Rerank)    |            0.9667            |                0.8727                 |                  0.8556                  |           0.7333            |
+
+> **Nhận xét:** Việc LLM (HyDE) mở rộng câu hỏi đã giúp cải thiện điểm Tín hiệu/Nhiễu (Context Precision) từ 72.7% lên tới mức kỷ lục **87.7%** ở bản Advanced 1. Mặc dù Advanced 2 được trang bị cả Hybrid, nhưng việc lôi lên các tài liệu nhiễu từ khóa đã khiến Reranker không xử lý triệt để, kéo lùi nhẹ điểm Relevancy và Precision. Nhờ tài liệu đầu vào sạch sẽ từ Advanced 1, AI sinh ra câu trả lời gần như không có sự bịa đặt (Hallucination), đẩy điểm trung thực (Faithfulness) chạm nóc **97.8%**.
 
 ---
 
 ## Tech Stack
 
-| Layer | Công nghệ |
-|:---|:---|
-| **Core AI Framework** | LangChain + LangGraph (Agentic Workflow) |
-| **LLM — Chat & Quiz & Slide** | Google Gemini 1.5 Flash (Free Tier) |
-| **LLM-as-a-Judge** | Groq Llama 3.3-70b (Đánh giá chất lượng Quiz) |
-| **Embedding** | `BAAI/bge-m3` — chạy local, tối ưu tiếng Việt |
-| **Reranker** | `BAAI/bge-reranker-v2-m3` — Cross-Encoder |
-| **Vector Database** | ChromaDB (Local, Persistent) |
-| **Backend API** | FastAPI + Uvicorn |
-| **Frontend UI** | React 18 (Vite) + Tailwind CSS |
-| **PDF Processing** | PyMuPDF (`fitz`) — giữ nguyên công thức, bảng biểu, hình ảnh |
-| **Slide Export** | `python-pptx` |
-| **Speech-to-Text** | OpenAI Whisper (Voice Chat) |
-| **Evaluation** | Ragas Framework |
+| Layer                         | Công nghệ                                                    |
+| :---------------------------- | :----------------------------------------------------------- |
+| **Core AI Framework**         | LangChain + LangGraph (Agentic Workflow)                     |
+| **LLM — Chat & Quiz & Slide** | Google Gemini 1.5 Flash (Free Tier)                          |
+| **LLM-as-a-Judge**            | Groq Llama 3.3-70b (Đánh giá chất lượng Quiz)                |
+| **Embedding**                 | `BAAI/bge-m3` — chạy local, tối ưu tiếng Việt                |
+| **Reranker**                  | `BAAI/bge-reranker-v2-m3` — Cross-Encoder                    |
+| **Vector Database**           | ChromaDB (Local, Persistent)                                 |
+| **Backend API**               | FastAPI + Uvicorn                                            |
+| **Frontend UI**               | React 18 (Vite) + Tailwind CSS                               |
+| **PDF Processing**            | PyMuPDF (`fitz`) — giữ nguyên công thức, bảng biểu, hình ảnh |
+| **Slide Export**              | `python-pptx`                                                |
+| **Speech-to-Text**            | OpenAI Whisper (Voice Chat)                                  |
+| **Evaluation**                | Ragas Framework                                              |
 
 ---
 
@@ -300,15 +317,19 @@ cd ..
 Mở **2 terminal** song song (cả 2 đều `conda activate elearning`):
 
 **Terminal 1 — Backend (FastAPI):**
+
 ```bash
 python -m uvicorn backend.main:app --reload
 ```
+
 → API: `http://localhost:8000` | Swagger: `http://localhost:8000/docs`
 
 **Terminal 2 — Frontend (React):**
+
 ```bash
 cd frontend && npm run dev
 ```
+
 → Giao diện: `http://localhost:5173`
 
 ### Bắt đầu sử dụng
@@ -322,18 +343,18 @@ cd frontend && npm run dev
 
 ## Notebooks
 
-| Notebook | Mục đích |
-|:---|:---|
-| `01_test_pdf_parser.ipynb` | Kiểm tra chất lượng parse PDF |
-| `02_test_rag_pipeline.ipynb` | Test end-to-end RAG pipeline |
-| `03_evaluate_rag.ipynb` | Ragas evaluation — so sánh Basic vs Advanced RAG |
-| `06_agentic_workflow.ipynb` | Visualize LangGraph StateGraph + test agent |
+| Notebook                     | Mục đích                                         |
+| :--------------------------- | :----------------------------------------------- |
+| `01_test_pdf_parser.ipynb`   | Kiểm tra chất lượng parse PDF                    |
+| `02_test_rag_pipeline.ipynb` | Test end-to-end RAG pipeline                     |
+| `03_evaluate_rag.ipynb`      | Ragas evaluation — so sánh Basic vs Advanced RAG |
+| `06_agentic_workflow.ipynb`  | Visualize LangGraph StateGraph + test agent      |
 
 ---
 
 <div align="center">
 
-*Dự án được xây dựng hoàn toàn với công cụ và API miễn phí.*
-*Thiết kế để dễ đọc, dễ mở rộng — phù hợp cho mục đích nghiên cứu và học thuật.*
+_Dự án được xây dựng hoàn toàn với công cụ và API miễn phí._
+_Thiết kế để dễ đọc, dễ mở rộng — phù hợp cho mục đích nghiên cứu và học thuật._
 
 </div>
