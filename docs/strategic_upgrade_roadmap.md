@@ -454,3 +454,255 @@ Dưới đây là kế hoạch nâng cấp kiến trúc để tích hợp 2 thà
 ## 📊 Vị trí trong Roadmap (Cập nhật)
 
 Tính năng này được xếp thẳng vào **PHASE 5 — "MLOps"** (Cùng với Docker, Celery). Tích hợp MLFlow Tracking và Pipeline sinh Testset tự động sẽ là điểm nhấn kiến trúc (Architectural Highlight) cực kỳ đắt giá trong CV AI Engineer, là minh chứng rõ ràng cho kỹ năng quản trị vòng đời mô hình (**RAG Lifecycle Management**).
+
+---
+
+# Mục tiêu: Nâng cấp lên Agentic AI Platform thực thụ
+
+> Cập nhật dựa trên AI Engineer review (2026-06-29).
+> Đánh giá hiện tại: **8.8–9.2/10** — vượt xa RAG thông thường, nhưng cần thêm các lớp sau để đạt chuẩn production Agentic AI.
+
+## ⚠️ Chẩn đoán trung thực
+
+Hệ thống hiện tại về bản chất là:
+
+```
+if "quiz" in text → Quiz Generator
+else              → RAG Pipeline
+```
+
+Đây là **Chatbot có vòng lặp Self-Correction**, chưa phải Agentic AI. Để hệ thống được gọi là "Agentic" đúng nghĩa, cần có tối thiểu 3 yếu tố:
+1. **Tự lập kế hoạch đa bước** (Planner, không phải Router/Classifier)
+2. **Tự chọn công cụ phù hợp** (Tool Calling Layer)
+3. **Người dùng nhìn thấy AI đang làm gì** (Event Streaming)
+
+---
+
+## 🔧 7 Nâng cấp Kiến trúc Cụ thể
+
+### Nâng cấp 1 — Router → Planner (Task Decomposition)
+
+**Vấn đề:** Router hiện tại chỉ phân loại intent 1-1. Khi user hỏi *"Đọc PDF rồi tạo slide và quiz"*, Router bị kẹt.
+
+**Giải pháp:** Thay `router_node` bằng `planner_node` — dùng LLM để decompose yêu cầu thành danh sách tasks:
+
+```python
+# Thay vì:
+intent = "quiz" if "quiz" in text else "rag"
+
+# Thành:
+tasks = planner_llm.invoke(f"Decompose this request into ordered tasks: {query}")
+# → [{"task": "retrieve", "agent": "tutor"}, {"task": "quiz", "agent": "quiz"}, ...]
+```
+
+Dùng LangGraph `Send()` API để fan-out nhiều tasks song song hoặc tuần tự.
+
+**Files cần sửa:**
+```
+backend/agent/nodes.py    [MODIFY] — thêm planner_node, xóa router_node
+backend/agent/graph.py    [MODIFY] — dùng Send() API thay conditional_edges đơn giản
+backend/agent/state.py    [MODIFY] — thêm field: task_list, current_task, agent_name
+```
+
+---
+
+### Nâng cấp 2 — Tool Calling Layer (ToolNode)
+
+**Vấn đề:** Hiện tại mỗi Agent node gọi hàm trực tiếp (hardcode). Không thể mở rộng.
+
+**Giải pháp:** Tạo một `ToolNode` trung gian — các Agent chỉ cần emit `tool_calls`, ToolNode thực thi:
+
+```python
+tools = [
+    retrieval_tool,    # Hybrid RAG Search
+    web_search_tool,   # DuckDuckGo (fallback)
+    ocr_tool,          # Gemini Vision cho image
+    export_pptx_tool,  # Slide generator
+    quiz_db_tool,      # Truy vấn quiz đã lưu
+]
+tool_node = ToolNode(tools)
+```
+
+Thêm tool mới sau này chỉ cần append vào list — không sửa Agent code.
+
+**Files cần tạo/sửa:**
+```
+backend/agent/tools.py    [NEW] — định nghĩa tất cả LangChain tools
+backend/agent/nodes.py    [MODIFY] — Agent nodes dùng tool_calls thay vì gọi hàm
+backend/agent/graph.py    [MODIFY] — thêm ToolNode vào graph
+```
+
+---
+
+### Nâng cấp 3 — HyDE có điều kiện (Conditional HyDE)
+
+**Vấn đề:** HyDE tốn 1 LLM call cho mọi query, kể cả câu hỏi đơn giản.
+
+**Giải pháp:** Chỉ kích hoạt HyDE khi query phức tạp:
+
+```python
+def should_use_hyde(query: str) -> bool:
+    # Dùng khi: câu hỏi dài, trừu tượng, hoặc retrieval khó
+    return len(query.split()) > 8 or any(
+        w in query.lower() for w in ["so sánh", "phân tích", "giải thích", "tại sao"]
+    )
+```
+
+**Files cần sửa:**
+```
+backend/rag/retriever.py    [MODIFY] — thêm logic conditional HyDE
+```
+
+---
+
+### Nâng cấp 4 — Reflection Node (Phân tích nguyên nhân trước Retry)
+
+**Vấn đề:** `evaluate_quiz_node` hiện tại chỉ trả về `score`, không biết *tại sao* thất bại → Retry mù.
+
+**Giải pháp:** Thêm `reflection_node` giữa Evaluator và Retry:
+
+```python
+def reflection_node(state):
+    # LLM phân tích: tại sao quiz quality thấp?
+    reflection = llm.invoke(f"""
+    Quiz score: {state['quiz_score']}/20
+    Quiz content: {state['quiz_data']}
+    
+    Phân tích: Lý do điểm thấp là gì? (context thiếu / câu hỏi mơ hồ / đáp án sai)
+    Đề xuất: Cần thay đổi gì khi sinh lại?
+    """)
+    return {"reflection": reflection.content}
+```
+
+`generate_quiz_node` nhận `reflection` để sinh lại **đúng hướng** thay vì random retry.
+
+**Files cần sửa:**
+```
+backend/agent/nodes.py    [MODIFY] — thêm reflection_node
+backend/agent/graph.py    [MODIFY] — evaluate → reflection → generate (thay vì evaluate → generate)
+backend/agent/state.py    [MODIFY] — thêm field: reflection
+```
+
+---
+
+### Nâng cấp 5 — Memory 3 Tầng (Tách biệt hoàn toàn)
+
+**Vấn đề:** Memory hiện tại lẫn lộn giữa LangGraph State và `memory.py` JSON file — hai hệ thống không biết nhau.
+
+**Giải pháp:** Tách thành 3 tầng độc lập, rõ ràng:
+
+| Tầng | Công nghệ | Lưu gì | Thời gian sống |
+|:---|:---|:---|:---|
+| **Checkpoint** | LangGraph `SqliteSaver` | Graph state, resume sau crash | Per session |
+| **Conversation** | `memory.py` (hiện có) | 12 messages gần nhất | Per conversation |
+| **Semantic Memory** | ChromaDB collection riêng | User profile, điểm yếu, sở thích | Vĩnh viễn |
+
+Semantic Memory được inject vào Planner context, không phải từng Agent tự đọc:
+
+```python
+def planner_node(state):
+    user_profile = semantic_memory.search(state["user_id"])
+    # Planner biết user yếu chủ đề nào → lập kế hoạch phù hợp
+```
+
+**Files cần tạo/sửa:**
+```
+backend/agent/semantic_memory.py    [NEW]
+backend/agent/graph.py              [MODIFY] — thêm SqliteSaver checkpointer
+backend/agent/state.py              [MODIFY] — thêm field: user_id, reflection, task_list
+```
+
+---
+
+### Nâng cấp 6 — Research Agent: RAG trước, Web sau
+
+**Vấn đề:** Research Agent hiện được thiết kế chạy RAG và Web song song, tốn quota.
+
+**Giải pháp:** RAG-first, chỉ fallback Web khi RAG không đủ tự tin:
+
+```python
+def research_node(state):
+    rag_result = retrieval_tool.invoke(query)
+    
+    if rag_result["confidence"] > 0.7:
+        return rag_result  # Đủ tự tin → không cần web
+    
+    # Fallback: search web
+    web_result = web_search_tool.invoke(query)
+    return merge(rag_result, web_result)
+```
+
+---
+
+### Nâng cấp 7 — Event Streaming (UI nhìn thấy AI đang làm gì)
+
+**Đây là thứ tạo ra "wow factor" lớn nhất trong demo.**
+
+Backend emit SSE events tại mỗi bước của graph:
+
+```python
+# Trong mỗi node, yield event trước khi xử lý:
+yield {"event": "planning", "message": "🟢 Planner đang lập kế hoạch..."}
+yield {"event": "retrieving", "message": "🟢 Đang tìm kiếm tài liệu..."}
+yield {"event": "evaluating", "message": "🟢 Giám khảo AI đang chấm điểm..."}
+yield {"event": "reflecting", "message": "🟢 Đang phân tích lỗi và cải thiện..."}
+yield {"event": "done", "message": "✅ Hoàn thành"}
+```
+
+Frontend render từng event thành progress indicator — người dùng thấy AI đang "suy nghĩ" theo thời gian thực.
+
+**Files cần sửa:**
+```
+backend/api/routers/chat.py    [MODIFY] — thêm SSE endpoint /api/v1/chat/stream/events
+frontend/src/pages/Chat/       [MODIFY] — subscribe SSE, render workflow progress
+```
+
+---
+
+## 📋 Kế hoạch thực hiện
+
+```
+PHASE 1A — Core Agentic (2-3 ngày, ƯU TIÊN CAO NHẤT)
+├─ [1] Router → Planner Node (Task Decomposition)
+├─ [2] Tool Calling Layer (ToolNode với 4-5 tools cơ bản)
+└─ [3] Event Streaming (SSE backend + Frontend progress UI)
+
+PHASE 1B — Self-Correction nâng cao (1-2 ngày)
+├─ [4] Reflection Node (phân tích trước khi Retry)
+└─ [5] Conditional HyDE (tối ưu API quota)
+
+PHASE 2 — Memory Architecture (1-2 ngày)
+├─ [6] SqliteSaver Checkpointer vào LangGraph
+└─ [7] Semantic Memory (ChromaDB user profile collection)
+
+PHASE 3 — Research Agent chuẩn hóa (< 1 ngày)
+└─ [8] RAG-first, Web fallback logic
+
+PHASE 4 — Observability (song song với các phase trên)
+└─ [9] LangSmith tracing (free tier, chỉ cần thêm env var)
+```
+
+## 🏆 Kết quả kỳ vọng sau hoàn thành
+
+```
+CV Headline (sau upgrade):
+"Agentic AI E-Learning Platform:
+ LangGraph Multi-Agent với Planner + Tool Calling,
+ 3-layer Memory Architecture, Self-Correction với Reflection,
+ Event Streaming UI, Hybrid RAG (BM25+Dense+HyDE)"
+
+Demo highlight:
+User: "Đọc chương 3, tạo slide và sinh 5 câu quiz"
+→ Planner decompose thành 3 tasks
+→ UI hiển thị: 🟢 Planning... 🟢 Retrieving... 🟢 Generating Slide... 🟢 Generating Quiz...
+→ HITL: "Slide có cấu trúc X, bạn xác nhận?" → [Confirm]
+→ Kết quả: Slide .pptx + Quiz trong cùng 1 request
+```
+
+> [!IMPORTANT]
+> **3 thứ tối thiểu để demo được gọi là "Agentic AI":**
+> 1. Planner decompose tasks (không phải keyword matching)
+> 2. Tool Calling Layer (Agent chọn tool động, không hardcode)
+> 3. Event Streaming (người dùng thấy AI đang làm gì)
+> Thiếu 1 trong 3 → vẫn chỉ là chatbot xịn hơn.
+

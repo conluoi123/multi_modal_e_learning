@@ -157,9 +157,9 @@ def retrieve_context(
     k: int = 3,
     doc_id: Optional[str] = None,
     use_hyde: bool = True,
-    use_reranker: bool = True,
-    bm25_weight: float = 0.35,
-    dense_weight: float = 0.65,
+    use_reranker: bool = False,
+    bm25_weight: float = 0.4,
+    dense_weight: float = 0.6,
 ) -> list[dict]:
     """
     Hybrid Search: BM25 (0.35) + Dense Vector (0.65) → Pool → Cross-Encoder Reranker → Top K
